@@ -1,0 +1,1066 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Simulasi Data Center Hijau</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky status bar on top. Phone stacks site diorama, report cards, then controls. Wide screens put diorama + report on the left and controls on the right. */
+:root{
+  --bg:#E9F0EE; --surface:#F6FAF8; --surface2:#DCE7E3; --ink:#10262B; --ink2:#42595F; --line:#BCCDC8;
+  --accent:#0B7A63; --accent-ink:#FFFFFF; --accent-soft:#CDEBE2;
+  --water:#176FA6; --good:#13783A; --good-bg:#D3EEDB; --warn:#8F5A06; --warn-bg:#F5E3B8; --bad:#B0301F; --bad-bg:#F5D5CF;
+  --sky-top:#BFE0EE; --sky-bot:#E6F4F1; --sun:#E3A81C; --cloud:#FFFFFF;
+  --sun-core:#FFF7CF; --sun-edge:#F0A21B; --sun-glow:#FFD25A; --beam:#FFF0B0;
+  --sky-dry-top:#E9C99B; --sky-dry-bot:#F6E7C9; --sun-dry:#E2711D;
+  --land:#6FA66A; --land-dry:#C0A864; --soil:#B79B7A; --aqua:#5BAAD6;
+  --bldg:#8FA3A8; --bldg-dark:#5F767C; --win:#E8F3F1; --metal:#6D8187; --panel:#2E5E8C; --panel-line:#9CC1E3;
+  --leaf:#2F8F4E; --leaf-dry:#A8963F; --trunk:#6B4F35; --house:#E9D8C0; --roof:#B5503C; --smoke:#8B979A;
+  --pond-good:#4DA8D8; --pond-warn:#B5A25A; --pond-bad:#7A5A3A; --pipe:#2F6F9B; --heat:#E0792B; --wall:#9AA3A5;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Figtree','Segoe UI',system-ui,sans-serif;
+  --f-data:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1517; --surface:#112124; --surface2:#1A3033; --ink:#E4F1ED; --ink2:#9BB4AF; --line:#27423F;
+    --accent:#3FCFA8; --accent-ink:#06211B; --accent-soft:#143A33;
+    --water:#58B4EA; --good:#4AD184; --good-bg:#12392A; --warn:#E8B04A; --warn-bg:#3D2F10; --bad:#F2796B; --bad-bg:#432019;
+    --sky-top:#14313F; --sky-bot:#1E4A52; --sun:#F2C65B; --cloud:#3C6470;
+    --sun-core:#FFF3C4; --sun-edge:#EE9F26; --sun-glow:#F6C453; --beam:#F6C453;
+    --sky-dry-top:#4A3520; --sky-dry-bot:#6B4B2A; --sun-dry:#F08A3A;
+    --land:#2F6B4A; --land-dry:#7B6A33; --soil:#4B3C30; --aqua:#2F83B3;
+    --bldg:#5C7279; --bldg-dark:#3F545A; --win:#BFE6DC; --metal:#8AA0A6; --panel:#2F6CA8; --panel-line:#8DBBE6;
+    --leaf:#3FA066; --leaf-dry:#A38F3A; --trunk:#7A5C3E; --house:#CDBBA2; --roof:#C0583F; --smoke:#7E8F92;
+    --pond-good:#3FA5DE; --pond-warn:#A99644; --pond-bad:#6C4A2C; --pipe:#5FB0E3; --heat:#F08D3C; --wall:#8A9597;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1517; --surface:#112124; --surface2:#1A3033; --ink:#E4F1ED; --ink2:#9BB4AF; --line:#27423F;
+  --accent:#3FCFA8; --accent-ink:#06211B; --accent-soft:#143A33;
+  --water:#58B4EA; --good:#4AD184; --good-bg:#12392A; --warn:#E8B04A; --warn-bg:#3D2F10; --bad:#F2796B; --bad-bg:#432019;
+  --sky-top:#14313F; --sky-bot:#1E4A52; --sun:#F2C65B; --cloud:#3C6470;
+  --sun-core:#FFF3C4; --sun-edge:#EE9F26; --sun-glow:#F6C453; --beam:#F6C453;
+  --sky-dry-top:#4A3520; --sky-dry-bot:#6B4B2A; --sun-dry:#F08A3A;
+  --land:#2F6B4A; --land-dry:#7B6A33; --soil:#4B3C30; --aqua:#2F83B3;
+  --bldg:#5C7279; --bldg-dark:#3F545A; --win:#BFE6DC; --metal:#8AA0A6; --panel:#2F6CA8; --panel-line:#8DBBE6;
+  --leaf:#3FA066; --leaf-dry:#A38F3A; --trunk:#7A5C3E; --house:#CDBBA2; --roof:#C0583F; --smoke:#7E8F92;
+  --pond-good:#3FA5DE; --pond-warn:#A99644; --pond-bad:#6C4A2C; --pipe:#5FB0E3; --heat:#F08D3C; --wall:#8A9597;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:12px 56px}
+.wrap{max-width:1200px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,8vw,3.6rem);line-height:1;font-weight:700;letter-spacing:-.025em}
+h2{font-size:1.25rem;font-weight:650;line-height:1.2}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font:500 11.5px var(--f-data);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.top{display:flex;flex-direction:column;gap:8px;padding-top:8px}
+.lede{max-width:62ch;color:var(--ink2);font-size:1rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* status bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 22px -14px rgba(6,28,26,.5)}
+.bar-main{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(96px,34%);gap:12px;align-items:center}
+.score{font-family:var(--f-data);display:flex;align-items:baseline;gap:2px}
+.score b{font-size:2rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.score span{font-size:.75rem;color:var(--ink2)}
+.grade{display:flex;flex-direction:column;min-width:0}
+.grade b{font:650 .9rem var(--f-display);line-height:1.2}
+.grade span{font-size:.75rem;color:var(--ink2);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:520px){.grade span{display:none}.bar[data-over="true"] .grade span{display:-webkit-box;color:var(--bad)}}
+.budget-top{display:flex;justify-content:space-between;gap:6px;font-size:.72rem;color:var(--ink2);margin-bottom:4px}
+.budget-top b{font:500 .72rem var(--f-data);color:var(--ink);font-variant-numeric:tabular-nums}
+.bar[data-over="true"] .budget-top b{color:var(--bad)}
+.meter{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.meter>i{display:block;height:100%;width:var(--w,0%);background:var(--tone,var(--accent));border-radius:99px;transition:width .35s}
+.bar[data-over="true"] .meter>i{background:var(--bad)}
+.dots{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.dots li{display:flex;flex-direction:column;gap:0;padding:4px 7px;border-radius:9px;background:var(--surface2);min-width:0}
+.dl{display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--ink2);white-space:nowrap}
+.dl i{width:8px;height:8px;border-radius:50%;background:var(--tone,var(--ink2));flex:none}
+.dots b{font:500 .78rem var(--f-data);white-space:nowrap;font-variant-numeric:tabular-nums}
+[data-st="good"]{--tone:var(--good)}
+[data-st="warn"]{--tone:var(--warn)}
+[data-st="bad"]{--tone:var(--bad)}
+
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+@media(min-width:980px){.grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+@media(max-width:979px){.grid>.col:first-child{display:contents}.grid>.col:last-child{order:2}.notes-sec{order:3}}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.scene-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.scene{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
+.cap{font-size:.8rem;color:var(--ink2);margin-top:8px;max-width:70ch}
+.presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.presets>span{font:500 11.5px var(--f-data);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.btn{font:600 .85rem var(--f-body);padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;align-items:baseline;margin-bottom:10px}
+.mission{font-size:.82rem;color:var(--ink2)}
+.mission[data-done="true"]{color:var(--good);font-weight:600}
+
+/* indicator cards */
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:560px) and (max-width:979px){.cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ind{display:flex;flex-direction:column;gap:8px;padding:12px;min-width:0}
+.ind header{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.ind h3{font-size:.86rem}
+.pill{font:600 .68rem var(--f-body);padding:2px 8px;border-radius:99px;white-space:nowrap;background:var(--surface2);color:var(--ink2)}
+.ind[data-st="good"] .pill{background:var(--good-bg);color:var(--good)}
+.ind[data-st="warn"] .pill{background:var(--warn-bg);color:var(--warn)}
+.ind[data-st="bad"] .pill{background:var(--bad-bg);color:var(--bad)}
+.big{display:flex;flex-direction:column;line-height:1.1}
+.big b{font:600 1.7rem var(--f-data);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.big small{font-size:.72rem;color:var(--ink2);margin-top:2px}
+.ind .sub{font-size:.76rem;color:var(--ink2);line-height:1.4}
+
+/* notes */
+.notes{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.notes li{display:grid;grid-template-columns:10px minmax(0,1fr);gap:10px;align-items:start;font-size:.92rem;line-height:1.45}
+.notes li::before{content:"";width:10px;height:10px;border-radius:3px;margin-top:6px;background:var(--tone,var(--water))}
+.notes li[data-t="good"]{--tone:var(--good)}
+.notes li[data-t="warn"]{--tone:var(--warn)}
+.notes li[data-t="bad"]{--tone:var(--bad)}
+.copyrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
+#copyMsg{font-size:.8rem;color:var(--ink2)}
+#copyArea{width:100%;min-height:150px;margin-top:10px;font:12px/1.5 var(--f-data);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px}
+
+/* controls */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:6px}
+.tab{flex:1 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 12px;border-radius:11px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:600 .85rem var(--f-body);cursor:pointer;text-align:left}
+.tab .tc{font:500 .7rem var(--f-data);color:var(--ink2)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab[aria-selected="true"] .tc{color:var(--bg);opacity:.8}
+.ctl{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid var(--line)}
+.ctl:first-of-type{border-top:0;padding-top:6px}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lbl{font:600 .98rem var(--f-display)}
+.val{font:500 .85rem var(--f-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hint{font-size:.8rem;color:var(--ink2);line-height:1.4}
+.cost{font:500 .72rem var(--f-data);color:var(--ink2);white-space:nowrap}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;text-align:left;padding:10px 12px;border:1px solid var(--line);background:var(--surface);border-radius:12px;color:inherit;font:inherit;cursor:pointer}
+.opt b{font-weight:600;font-size:.9rem}
+.opt span.d{grid-column:1;font-size:.78rem;color:var(--ink2);line-height:1.35}
+.opt .cost{grid-row:1;grid-column:2}
+.opt[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg{display:flex;gap:4px;padding:3px;background:var(--surface2);border-radius:11px}
+.seg button{flex:1 1 0;min-width:0;border:0;background:transparent;font:600 .8rem var(--f-body);padding:8px 6px;border-radius:8px;color:var(--ink2);cursor:pointer;line-height:1.25}
+.seg button small{display:block;font:400 .66rem var(--f-data);opacity:.85}
+.seg button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.22)}
+.seg-sm button{padding:6px 12px}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
+.sw .track{flex:none;width:46px;height:26px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);position:relative;transition:background .2s}
+.sw .track::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--ink2);transition:transform .2s,background .2s}
+.sw[aria-checked="true"] .track{background:var(--accent);border-color:var(--accent)}
+.sw[aria-checked="true"] .track::after{transform:translateX(20px);background:var(--accent-ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(to right,var(--accent) var(--p,0%),var(--surface2) var(--p,0%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);margin-top:-9px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:var(--surface2)}
+input[type=range]::-moz-range-progress{height:8px;border-radius:99px;background:var(--accent)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--surface);border:3px solid var(--accent)}
+
+/* learn + quiz */
+.learn{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+@media(min-width:980px){.learn{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+dl.terms{margin:10px 0 0;border-top:1px solid var(--line)}
+.term{display:grid;grid-template-columns:minmax(64px,96px) minmax(0,1fr);gap:4px 14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.term dt{font:600 .85rem var(--f-data);color:var(--accent)}
+.term dd{margin:0;font-size:.9rem}
+.q{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.q p.qt{font-weight:600}
+.q .opts .opt{grid-template-columns:minmax(0,1fr)}
+.opt:disabled{color:inherit;cursor:default}
+.q .opt[data-r="ok"]{border-color:var(--good);background:var(--good-bg)}
+.q .opt[data-r="no"]{border-color:var(--bad);background:var(--bad-bg)}
+.q .why{font-size:.84rem;color:var(--ink2)}
+.qscore{font:500 .85rem var(--f-data);margin-top:6px}
+.foot{font-size:.78rem;color:var(--ink2);max-width:80ch;line-height:1.5}
+
+/* scene */
+.s-sun{fill:var(--sun)} .s-cloud{fill:var(--cloud);opacity:.9}
+.s-land{fill:var(--land)} .s-soil{fill:var(--soil)} .s-aqua{fill:var(--aqua);opacity:.85}
+.s-bldg{fill:var(--bldg)} .s-bldg2{fill:var(--bldg-dark)} .s-win{fill:var(--win);opacity:.85}
+.s-metal{fill:var(--metal)} .s-panel{fill:var(--panel);stroke:var(--panel-line);stroke-width:1}
+.s-leaf{fill:var(--leaf)} .s-trunk{fill:var(--trunk)} .s-house{fill:var(--house)} .s-roof{fill:var(--roof)} .s-smoke{fill:var(--smoke)}
+.s-wall{fill:var(--wall)} .s-glass{fill:var(--win);stroke:var(--leaf);stroke-width:2}
+.s-pipe{stroke:var(--pipe);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.s-heat{stroke:var(--heat);stroke-width:4;fill:none;stroke-linecap:round}
+.s-loop{stroke:var(--accent);stroke-width:3;fill:none;stroke-dasharray:7 6;stroke-linecap:round}
+.s-vapor{fill:var(--cloud);opacity:.9}
+.s-line{stroke:var(--ink2);stroke-width:2;fill:none;stroke-linecap:round}
+.s-well{stroke:var(--pipe);stroke-width:3;fill:none}
+.s-well.dry{stroke:var(--bad);stroke-dasharray:5 5}
+.s-pond{fill:var(--pond-good)} .s-pond[data-st="warn"]{fill:var(--pond-warn)} .s-pond[data-st="bad"]{fill:var(--pond-bad)}
+.s-ring{fill:none;stroke:var(--tone,var(--good));stroke-width:3;stroke-dasharray:3 7;stroke-linecap:round}
+.s-txt{fill:var(--ink);font:600 20px var(--f-body)}
+.s-txt.on{fill:var(--win)}
+.s-txt.dc{fill:var(--ink)}
+.scene[data-season="kemarau"]{--sky-top:var(--sky-dry-top);--sky-bot:var(--sky-dry-bot);--sun:var(--sun-dry);--land:var(--land-dry);--leaf:var(--leaf-dry)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* tab utama */
+.menubar{display:flex;align-items:center;gap:12px}
+.hamb{flex:none;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;cursor:pointer}
+.hamb span{display:block;width:22px;height:3px;border-radius:2px;background:var(--ink)}
+.curtab{font:650 1rem var(--f-display);min-width:0;flex:1}
+.themebtn{flex:none;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.themebtn:hover{border-color:var(--accent)}
+.themebtn .i-sun{display:none}
+.themebtn[data-mode="dark"] .i-sun{display:block}
+.themebtn[data-mode="dark"] .i-moon{display:none}
+.mtabs{display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px -14px rgba(6,28,26,.5)}
+.mtabs .mtab{flex:none;width:100%}
+#m-materi .learn{grid-template-columns:minmax(0,1fr)}
+#m-materi .learn>section[aria-labelledby="h-prob"]{order:-1}
+.mtab{flex:1 1 0;min-width:max-content;display:flex;flex-direction:column;gap:1px;align-items:flex-start;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:600 .9rem var(--f-body);cursor:pointer;text-align:left}
+.mtab .tc{font:500 .7rem var(--f-data);color:var(--ink2)}
+.mtab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mtab[aria-selected="true"] .tc{color:var(--bg);opacity:.8}
+.panel{display:flex;flex-direction:column;gap:20px}
+.prob{padding:14px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.prob h3{color:var(--accent)}
+.prob p{font-size:.92rem}
+.prob .try{background:var(--accent-soft);border-radius:10px;padding:8px 10px}
+.nav{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 .85rem var(--f-data)}
+.qtime[data-low="true"]{color:var(--bad);font-weight:600}
+.fin{font:650 1.7rem var(--f-display)}
+
+
+/* animasi lokasi */
+.puff{transform-box:fill-box;transform-origin:center;opacity:0;animation:puff 5s linear infinite}
+.p-pln{fill:var(--smoke)}
+.p-gen{fill:var(--smoke)}
+.p-vap{fill:var(--cloud)}
+@keyframes puff{
+  0%{transform:translate(0,0) scale(.45);opacity:0}
+  12%{opacity:.85}
+  50%{transform:translate(calc(var(--dx)*.42),calc(var(--dy)*.55)) scale(calc(var(--s)*.6))}
+  100%{transform:translate(var(--dx),var(--dy)) scale(var(--s));opacity:0}
+}
+.rotor{transform-box:view-box;animation:spin 5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fan{transform-box:view-box;animation:spin .7s linear infinite}
+.fan path{fill:none;stroke-width:1.6;stroke-linecap:round}
+.wt-tower,.wt-blade,.wt-base{fill:var(--win);stroke:var(--bldg-dark);stroke-width:.9;stroke-linejoin:round}
+.wt-hub{fill:var(--bldg-dark)}
+.sun-halo{transform-box:fill-box;transform-origin:center;animation:halo 5s ease-in-out infinite}
+@keyframes halo{0%,100%{transform:scale(.94);opacity:.8}50%{transform:scale(1.1);opacity:1}}
+.sun-rays{transform-box:view-box;transform-origin:650px 46px;animation:spin 70s linear infinite}
+.sun-rays path{fill:var(--sun-glow);opacity:.55}
+.beam{transform-origin:650px 46px;transform-box:view-box;animation:beam 9s ease-in-out infinite alternate}
+@keyframes beam{0%{opacity:.25;transform:rotate(-2.5deg)}100%{opacity:1;transform:rotate(2.5deg)}}
+.flare{fill:var(--sun-glow);opacity:.14;animation:flare 6s ease-in-out infinite}
+@keyframes flare{0%,100%{opacity:.05}50%{opacity:.22}}
+.cloudA{animation:drift 38s ease-in-out infinite alternate}
+.cloudB{animation:drift 52s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translateX(-22px)}to{transform:translateX(30px)}}
+.pn-leg{stroke:var(--bldg-dark);stroke-width:1.2;fill:none}
+.pn-grid{stroke:var(--panel-line);stroke-width:.5;fill:none;opacity:.8}
+.pn-glint{fill:#fff;opacity:0;animation:glint 4.5s ease-in-out infinite}
+@keyframes glint{0%,70%,100%{opacity:0}82%{opacity:.7}}
+.s-ring{animation:ringflow 2.4s linear infinite}
+@keyframes ringflow{to{stroke-dashoffset:-20}}
+.s-loop{animation:ringflow 1.6s linear infinite}
+.s-pond{transform-box:fill-box;transform-origin:center;animation:ripple 4s ease-in-out infinite}
+@keyframes ripple{0%,100%{transform:scale(1)}50%{transform:scale(1.05,1.12)}}
+@media (prefers-reduced-motion:reduce){
+  .puff{opacity:.5}
+  .puff:nth-child(3n+1){transform:translate(calc(var(--dx)*.2),calc(var(--dy)*.25)) scale(.9)}
+  .puff:nth-child(3n+2){transform:translate(calc(var(--dx)*.5),calc(var(--dy)*.55)) scale(1.4)}
+  .puff:nth-child(3n){transform:translate(calc(var(--dx)*.85),calc(var(--dy)*.9)) scale(2)}
+  .beam{opacity:.6}
+}
+
+/* alat daur ulang energi */
+#recov,#ipal{cursor:pointer}
+#recov:focus-visible,#ipal:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pulse{fill:none;stroke:var(--accent);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pl 1.9s ease-out infinite}
+@keyframes pl{from{transform:scale(.65);opacity:.95}to{transform:scale(1.35);opacity:0}}
+.rc{margin-top:12px;padding:14px;border:1px solid var(--accent);border-radius:12px;background:var(--accent-soft);display:flex;flex-direction:column;gap:12px}
+.rc-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rc-head h3{font-size:1rem}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;counter-reset:fl}
+@media(min-width:620px){.flow{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px}}
+.fstep{position:relative;counter-increment:fl;display:flex;flex-direction:column;gap:6px;padding:12px;background:var(--surface);border:2px solid var(--line);border-radius:12px;animation:fl 6s infinite;animation-delay:var(--d)}
+.fstep::before{content:counter(fl);position:absolute;top:8px;right:10px;font:600 .75rem var(--f-data);color:var(--ink2)}
+.fstep:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-21px;transform:translateX(-50%);font:700 1.1rem var(--f-data);color:var(--accent)}
+@media(min-width:620px){.fstep:not(:last-child)::after{content:"→";left:auto;right:-21px;top:50%;bottom:auto;transform:translateY(-50%)}}
+.fstep b{font:650 .9rem var(--f-display)}
+.fstep span{font-size:.8rem;color:var(--ink2);line-height:1.4}
+@keyframes fl{0%,22%{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}28%,100%{border-color:var(--line);box-shadow:none}}
+.rc-note{font-size:.85rem}
+
+/* visual masalah (bagian 1) */
+.hero{padding:16px}
+.pvsvg{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
+.pv{margin:8px 0 6px;max-width:680px}
+.pv-top{display:flex;justify-content:flex-end;margin-bottom:6px}
+.pv-seg{display:inline-flex;gap:3px;padding:3px;background:var(--surface2);border-radius:99px}
+.pv-seg button{border:0;background:transparent;color:var(--ink2);font:600 .78rem var(--f-body);padding:6px 16px;border-radius:99px;cursor:pointer}
+.pv-seg button[aria-pressed="true"]{background:var(--bad);color:#fff}
+.pv-seg button[data-m="s"][aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.pv figcaption{font-size:.84rem;line-height:1.45;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bad-bg)}
+.pv[data-mode="s"] figcaption{background:var(--good-bg)}
+.pv[data-mode="p"] .m-s,.pv[data-mode="s"] .m-p{display:none}
+.pv .m-p,.pv .m-s{animation:pvin .6s ease both}
+@keyframes pvin{from{opacity:0}to{opacity:1}}
+.pv-t{font:600 10px var(--f-body);fill:var(--ink)} .pv-t.on{fill:var(--win)}
+.pv-tl{font:600 10px var(--f-body);fill:var(--ink2)}
+.m-tag rect{fill:var(--surface);stroke:var(--tone);stroke-width:1.5}
+.m-tag text{fill:var(--tone);font:700 10.5px var(--f-body)}
+.m-tag.bad{--tone:var(--bad)} .m-tag.good{--tone:var(--good)} .m-tag.info{--tone:var(--ink2)}
+.wire{fill:none;stroke-width:3;stroke-linecap:round;stroke-dasharray:6 6;animation:wireflow 1s linear infinite}
+.wire.bad,.wire.heat{stroke:var(--heat)} .wire.good{stroke:var(--good)} .wire.brown{stroke:var(--pond-bad)} .wire.blue{stroke:var(--pond-good)} .wire.dim{stroke:var(--ink2);opacity:.45}
+@keyframes wireflow{to{stroke-dashoffset:-12}}
+.pv-river-bad{fill:var(--pond-bad)} .pv-river-good{fill:var(--pond-good);opacity:.9}
+.rip{fill:none;stroke:#fff;stroke-width:1.6;opacity:.4;animation:rip 3s linear infinite}
+@keyframes rip{to{transform:translateX(-20px)}}
+.fish{animation:fishswim 8s linear infinite}
+@keyframes fishswim{0%{transform:translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(120px);opacity:0}}
+.bob{animation:bob 2.4s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(2.5px)}}
+.drift{animation:drift2 7s linear infinite}
+@keyframes drift2{0%{transform:translateX(0);opacity:0}15%{opacity:.8}100%{transform:translateX(110px);opacity:0}}
+.heatw{fill:none;stroke:var(--heat);stroke-width:2.2;stroke-linecap:round;animation:heatup 3s ease-in infinite}
+@keyframes heatup{0%{transform:translateY(0);opacity:0}25%{opacity:.9}100%{transform:translateY(-26px);opacity:0}}
+.heatr{fill:none;stroke:var(--heat);stroke-width:2;stroke-linecap:round;animation:heatright 3.6s linear infinite}
+@keyframes heatright{0%{transform:translateX(0);opacity:0}20%{opacity:.85}100%{transform:translateX(90px);opacity:0}}
+.co2{font:700 9px var(--f-data);fill:var(--ink);opacity:0;animation:co2up 4.8s linear infinite}
+@keyframes co2up{0%{transform:translate(0,0);opacity:0}15%{opacity:.95}100%{transform:translate(34px,-36px);opacity:0}}
+.zzz{font:700 12px var(--f-display);fill:var(--ink2);opacity:0;animation:zz 2.4s ease-in-out infinite}
+@keyframes zz{0%{transform:translate(0,0);opacity:0}30%{opacity:1}100%{transform:translate(8px,-14px);opacity:0}}
+.grow{transform-box:fill-box;transform-origin:50% 100%;animation:grow 3s ease-in-out infinite alternate}
+@keyframes grow{from{transform:scale(.6)}to{transform:scale(1.2)}}
+.rain{stroke:var(--aqua);stroke-width:2;stroke-linecap:round;animation:rain 1s linear infinite}
+@keyframes rain{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(20px);opacity:0}}
+.wv{fill:none;stroke:var(--tone,var(--bad));stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:wv 3.6s ease-out infinite}
+@keyframes wv{0%{transform:scale(.05);opacity:.85}100%{transform:scale(1);opacity:0}}
+.pulse-bad{fill:none;stroke:var(--bad);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:pl 1.6s ease-out infinite}
+.arrow-down{fill:none;stroke:var(--bad);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;animation:adown 1.4s ease-in-out infinite}
+@keyframes adown{0%,100%{transform:translateY(-4px);opacity:.5}50%{transform:translateY(6px);opacity:1}}
+.pv-haze{fill:var(--heat);opacity:.1;animation:haze 3s ease-in-out infinite alternate}
+@keyframes haze{from{opacity:.03}to{opacity:.2}}
+.hb{cursor:pointer} .hbc{fill:var(--bad);stroke:#fff;stroke-width:1.5}
+.hb text{fill:#fff;font:700 12px var(--f-display);pointer-events:none}
+.hb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:99px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font:600 .8rem var(--f-body);cursor:pointer}
+.chip:hover{border-color:var(--bad)}
+.chip b{width:22px;height:22px;border-radius:50%;background:var(--bad);color:#fff;display:grid;place-items:center;font:700 .75rem var(--f-display)}
+.prob{scroll-margin-top:12px}
+.chip[aria-selected="true"]{background:var(--bad);border-color:var(--bad);color:#fff}
+.chip[aria-selected="true"] b{background:#fff;color:var(--bad)}
+.hb.on .hbc{fill:#fff;stroke:var(--bad);stroke-width:3}.hb.on text{fill:var(--bad)}
+.probnav{display:flex;justify-content:space-between;gap:10px;margin-top:10px}
+@media (prefers-reduced-motion:reduce){.co2,.zzz{opacity:.8}}
+
+</style>
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Game Simulasi</p>
+  <h1>Data Center Hijau</h1>
+  <p class="lede">Dibuat oleh Kelompok 10</p>
+</header>
+
+<div class="menubar"><button type="button" class="hamb" id="hamb" aria-label="Buka menu" aria-expanded="false" aria-controls="mmenu"><span></span><span></span><span></span></button><div class="curtab" id="curtab">Pemahaman Materi dan Masalah</div><button type="button" class="themebtn" id="themeBtn" data-mode="light" aria-label="Ganti ke tema gelap" title="Ganti tema"><svg class="i-moon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z" fill="currentColor"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></g></svg></button></div>
+<nav class="mtabs" id="mmenu" role="tablist" aria-label="Bagian aplikasi" hidden><button type="button" class="mtab" role="tab" aria-selected="true" data-go="materi">Pemahaman Materi dan Masalah<span class="tc">Bagian 1</span></button><button type="button" class="mtab" role="tab" aria-selected="false" data-go="sim">Game Simulasi<span class="tc">Bagian 2</span></button><button type="button" class="mtab" role="tab" aria-selected="false" data-go="kuis">Kuis Pemahaman<span class="tc">Bagian 3</span></button></nav>
+
+<div id="m-materi" class="panel" role="tabpanel"><section class="card hero" aria-labelledby="h-hero"><h2 id="h-hero">Peta masalah di sekitar data center</h2><p class="hint" style="margin:4px 0 10px">Ketuk nomor merah pada gambar atau tombol di bawahnya untuk membuka masalah itu. Perhatikan asap, panas, bunyi, pipa air, dan sumur yang bergerak.</p><svg class="pvsvg" viewBox="0 0 360 200" role="img" aria-label="Peta masalah data center: karbon, air tanah, air limbah, suara dan asap, panas buangan"><defs><linearGradient id="pvgh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient></defs><rect width="360" height="200" fill="url(#pvgh)"/><circle class="s-sun" cx="324" cy="26" r="13"/><g class="s-cloud"><ellipse cx="236" cy="28" rx="26" ry="8"/><ellipse cx="250" cy="22" rx="14" ry="7"/></g><rect class="s-soil" y="112" width="360" height="78"/><rect class="s-land" y="109" width="360" height="6"/><path class="pv-river-bad" d="M200 112 H238 V134 H200Z"/><rect class="s-aqua" x="0" y="172" width="360" height="28"/><rect class="s-bldg2" x="10" y="84" width="34" height="28"/><rect class="s-bldg2" x="32" y="62" width="8" height="24"/><circle class="puff p-pln" cx="36" cy="58" r="5" style="--dx:40px;--dy:-40px;--s:2.6;animation-duration:6s;animation-delay:-0.00s"/><circle class="puff p-pln" cx="36" cy="58" r="5" style="--dx:40px;--dy:-40px;--s:2.6;animation-duration:6s;animation-delay:-1.50s"/><circle class="puff p-pln" cx="36" cy="58" r="5" style="--dx:40px;--dy:-40px;--s:2.6;animation-duration:6s;animation-delay:-3.00s"/><circle class="puff p-pln" cx="36" cy="58" r="5" style="--dx:40px;--dy:-40px;--s:2.6;animation-duration:6s;animation-delay:-4.50s"/><rect class="s-bldg" x="62" y="72" width="104" height="40"/><g class="s-win"><rect x="70" y="82" width="10" height="6"/><rect x="86" y="82" width="10" height="6"/><rect x="102" y="82" width="10" height="6"/><rect x="118" y="82" width="10" height="6"/><rect x="134" y="82" width="10" height="6"/><rect x="150" y="82" width="10" height="6"/><rect x="70" y="94" width="10" height="6"/><rect x="86" y="94" width="10" height="6"/><rect x="102" y="94" width="10" height="6"/><rect x="118" y="94" width="10" height="6"/><rect x="134" y="94" width="10" height="6"/><rect x="150" y="94" width="10" height="6"/></g><path class="heatw" d="M76 70 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-0.0s"/><path class="heatw" d="M98 70 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-0.7s"/><path class="heatw" d="M120 70 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-1.4s"/><path class="heatw" d="M142 70 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-2.0999999999999996s"/><rect class="s-metal" x="172" y="96" width="18" height="16" rx="2"/><rect class="s-bldg2" x="185" y="86" width="4" height="11"/><circle class="puff p-gen" cx="187" cy="84" r="3.6" style="--dx:12px;--dy:-34px;--s:2.6;animation-duration:3.4s;animation-delay:-0.00s"/><circle class="puff p-gen" cx="187" cy="84" r="3.6" style="--dx:12px;--dy:-34px;--s:2.6;animation-duration:3.4s;animation-delay:-1.13s"/><circle class="puff p-gen" cx="187" cy="84" r="3.6" style="--dx:12px;--dy:-34px;--s:2.6;animation-duration:3.4s;animation-delay:-2.27s"/><g style="--tone:var(--bad)"><circle class="wv" cx="150" cy="92" r="100" vector-effect="non-scaling-stroke" style="animation-delay:-0.0s"/><circle class="wv" cx="150" cy="92" r="100" vector-effect="non-scaling-stroke" style="animation-delay:-1.8s"/></g><g><rect class="s-house" x="252" y="92" width="26" height="20"/><path class="s-roof" d="M248 92 L265 76 L282 92Z"/><rect class="s-bldg2" x="261" y="101" width="7" height="11"/></g><path class="s-well dry" d="M265 112 V152"/><g><rect class="s-house" x="292" y="92" width="26" height="20"/><path class="s-roof" d="M288 92 L305 76 L322 92Z"/><rect class="s-bldg2" x="301" y="101" width="7" height="11"/></g><path class="s-well dry" d="M305 112 V152"/><g><rect class="s-house" x="332" y="92" width="26" height="20"/><path class="s-roof" d="M328 92 L345 76 L362 92Z"/><rect class="s-bldg2" x="341" y="101" width="7" height="11"/></g><path class="s-well dry" d="M345 112 V152"/><path class="s-pipe" d="M96 112 V184"/><path class="wire blue" d="M96 184 V112"/><path class="s-pipe" d="M150 112 V130 H200" style="stroke:var(--pond-bad);stroke-width:3"/><g class="hb" data-jump="1" tabindex="0" role="button" aria-label="Lihat masalah 1"><circle class="pulse-bad" cx="22" cy="46" r="11"/><circle class="hbc" cx="22" cy="46" r="11"/><text x="22" y="50.5" text-anchor="middle">1</text></g><g class="hb" data-jump="2" tabindex="0" role="button" aria-label="Lihat masalah 2"><circle class="pulse-bad" cx="96" cy="150" r="11"/><circle class="hbc" cx="96" cy="150" r="11"/><text x="96" y="154.5" text-anchor="middle">2</text></g><g class="hb" data-jump="3" tabindex="0" role="button" aria-label="Lihat masalah 3"><circle class="pulse-bad" cx="219" cy="98" r="11"/><circle class="hbc" cx="219" cy="98" r="11"/><text x="219" y="102.5" text-anchor="middle">3</text></g><g class="hb" data-jump="4" tabindex="0" role="button" aria-label="Lihat masalah 4"><circle class="pulse-bad" cx="208" cy="66" r="11"/><circle class="hbc" cx="208" cy="66" r="11"/><text x="208" y="70.5" text-anchor="middle">4</text></g><g class="hb" data-jump="5" tabindex="0" role="button" aria-label="Lihat masalah 5"><circle class="pulse-bad" cx="158" cy="44" r="11"/><circle class="hbc" cx="158" cy="44" r="11"/><text x="158" y="48.5" text-anchor="middle">5</text></g></svg><div class="chips" role="tablist" aria-label="Pilih masalah"><button type="button" class="chip" role="tab" id="chip-1" aria-controls="prob-1" aria-selected="true" data-jump="1"><b>1</b>Listrik dan karbon</button><button type="button" class="chip" role="tab" id="chip-2" aria-controls="prob-2" aria-selected="false" data-jump="2"><b>2</b>Air tanah habis</button><button type="button" class="chip" role="tab" id="chip-3" aria-controls="prob-3" aria-selected="false" data-jump="3"><b>3</b>Air buangan</button><button type="button" class="chip" role="tab" id="chip-4" aria-controls="prob-4" aria-selected="false" data-jump="4"><b>4</b>Suara dan asap</button><button type="button" class="chip" role="tab" id="chip-5" aria-controls="prob-5" aria-selected="false" data-jump="5"><b>5</b>Panas terbuang</button></div></section><div class="learn"><section class="card" aria-labelledby="h-terms">
+    <h2 id="h-terms">Istilah yang dipakai</h2>
+    <dl class="terms">
+      <div class="term"><dt>PUE</dt><dd>Total listrik data center dibagi listrik yang dipakai server. Angka 1,0 berarti tidak ada yang terbuang. Makin besar angkanya, makin banyak listrik habis untuk pendingin dan lampu.</dd></div>
+      <div class="term"><dt>WUE</dt><dd>Liter air yang dipakai untuk setiap 1 kWh listrik server. Menara pendingin besar, pendingin cair tertutup kecil.</dd></div>
+      <div class="term"><dt>kWh</dt><dd>Satuan energi listrik. Dalam simulasi ini, satu rumah tangga memakai sekitar 5 kWh per hari.</dd></div>
+      <div class="term"><dt>Emisi CO₂</dt><dd>CO₂ yang keluar untuk setiap 1 kWh listrik. Simulasi memakai angka sederhana: PLN 0,85 kg, panel surya 0,05 kg, angin 0,02 kg.</dd></div>
+      <div class="term"><dt>dB</dt><dd>Satuan kerasnya bunyi. Baku tingkat kebisingan kawasan permukiman di Indonesia adalah 55 dB(A), menurut KepMenLH No. 48 Tahun 1996.</dd></div>
+      <div class="term"><dt>Akuifer</dt><dd>Lapisan tanah dan batuan yang menyimpan air tanah. Jika air diambil lebih cepat daripada terisi hujan, muka air turun dan sumur warga bisa kering.</dd></div>
+      <div class="term"><dt>IPAL</dt><dd>Instalasi pengolahan air limbah. Air buangan dibersihkan dulu sebelum kembali ke saluran dan sungai.</dd></div>
+    </dl>
+  </section><section class="card" aria-labelledby="h-prob"><h2 id="h-prob">Masalah data center bagi lingkungan dan solusinya</h2><p class="hint" style="margin-top:4px">Data center memang penting untuk internet, sekolah online, dan aplikasi yang kita pakai. Namun kalau dibangun tanpa perencanaan, ia bisa merugikan lingkungan dan warga di sekitarnya. Berikut lima masalah utamanya, cara mengatasinya, dan bagian simulasi yang bisa kamu coba.</p><div class="prob" id="prob-1" role="tabpanel" aria-labelledby="chip-1"><h3>1. Listrik besar dan karbon</h3><figure class="pv" data-mode="p" data-auto="1"><div class="pv-top"><div class="pv-seg" role="group" aria-label="Tampilan gambar"><button type="button" data-m="p" aria-pressed="true">Masalah</button><button type="button" data-m="s" aria-pressed="false">Solusi</button></div></div><svg class="pvsvg" viewBox="0 0 360 190" role="img" aria-label="Listrik data center dari PLN batu bara melepas CO₂, atau dari surya dan angin"><defs><linearGradient id="pvg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient></defs><rect width="360" height="190" fill="url(#pvg1)"/><rect class="s-soil" y="130" width="360" height="60"/><rect class="s-land" y="127" width="360" height="6"/><g class="m-p"><rect class="pv-haze" width="360" height="130"/></g><circle class="s-sun" cx="318" cy="30" r="14"/><g class="m-p"><circle class="pulse-bad" cx="318" cy="30" r="14"/></g><rect class="s-bldg2" x="14" y="96" width="58" height="34"/><rect class="s-bldg2" x="56" y="62" width="11" height="36"/><text class="pv-t on" x="22" y="118">PLN</text><text class="pv-tl" x="14" y="150">PLN (batu bara)</text><text class="pv-tl" x="150" y="150">Data center</text><rect class="s-bldg" x="150" y="84" width="118" height="46"/><rect class="s-bldg2" x="150" y="84" width="118" height="7"/><g class="s-win"><rect x="156" y="98" width="12" height="7"/><rect x="175" y="98" width="12" height="7"/><rect x="194" y="98" width="12" height="7"/><rect x="213" y="98" width="12" height="7"/><rect x="232" y="98" width="12" height="7"/><rect x="251" y="98" width="12" height="7"/><rect x="156" y="112" width="12" height="7"/><rect x="175" y="112" width="12" height="7"/><rect x="194" y="112" width="12" height="7"/><rect x="213" y="112" width="12" height="7"/><rect x="232" y="112" width="12" height="7"/><rect x="251" y="112" width="12" height="7"/></g><g class="m-tag info" transform="translate(150 52)"><rect width="97" height="19" rx="9.5"/><text x="48.5" y="13" text-anchor="middle">Menyala 24 jam</text></g><g class="m-p"><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-0.00s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-1.08s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-2.17s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-3.25s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-4.33s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:72px;--dy:-58px;--s:3.2;animation-duration:6.5s;animation-delay:-5.42s"/><text class="co2" x="86" y="52" style="animation-delay:-0.0s">CO₂</text><text class="co2" x="98" y="40" style="animation-delay:-1.6s">CO₂</text><text class="co2" x="80" y="36" style="animation-delay:-3.2s">CO₂</text><circle class="pulse-bad" cx="61" cy="64" r="16"/><path class="wire bad" d="M72 112 H150"/><g class="m-tag bad" transform="translate(14 12)"><rect width="150" height="19" rx="9.5"/><text x="75.0" y="13" text-anchor="middle">Asap CO₂ dari batu bara</text></g><g class="m-tag bad" transform="translate(190 12)"><rect width="108" height="19" rx="9.5"/><text x="54.0" y="13" text-anchor="middle">Bumi makin panas</text></g></g><g class="m-s"><g opacity=".3"><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:50px;--dy:-40px;--s:2.6;animation-duration:7s;animation-delay:-0.00s"/><circle class="puff p-pln" cx="61" cy="58" r="6" style="--dx:50px;--dy:-40px;--s:2.6;animation-duration:7s;animation-delay:-3.50s"/></g><path class="wire dim" d="M72 112 H150"/><g transform="translate(166 80) rotate(-14)"><rect class="s-panel" x="-11" y="-4" width="22" height="8" rx="1.5"/><path class="pn-grid" d="M-3.5 -4V4M3.5 -4V4M-11 0H11"/><rect class="pn-glint" x="-11" y="-4" width="22" height="8" rx="1.5" style="animation-delay:-0.0s"/></g><g transform="translate(192 80) rotate(-14)"><rect class="s-panel" x="-11" y="-4" width="22" height="8" rx="1.5"/><path class="pn-grid" d="M-3.5 -4V4M3.5 -4V4M-11 0H11"/><rect class="pn-glint" x="-11" y="-4" width="22" height="8" rx="1.5" style="animation-delay:-0.9s"/></g><g transform="translate(218 80) rotate(-14)"><rect class="s-panel" x="-11" y="-4" width="22" height="8" rx="1.5"/><path class="pn-grid" d="M-3.5 -4V4M3.5 -4V4M-11 0H11"/><rect class="pn-glint" x="-11" y="-4" width="22" height="8" rx="1.5" style="animation-delay:-1.8s"/></g><g transform="translate(244 80) rotate(-14)"><rect class="s-panel" x="-11" y="-4" width="22" height="8" rx="1.5"/><path class="pn-grid" d="M-3.5 -4V4M3.5 -4V4M-11 0H11"/><rect class="pn-glint" x="-11" y="-4" width="22" height="8" rx="1.5" style="animation-delay:-2.7s"/></g><path class="wt-tower" d="M302 130 L308 130 L306.4 70 L303.6 70Z"/><g class="rotor" style="transform-origin:305px 70px;animation-duration:5s"><g transform="translate(305 70)"><path class="wt-blade" transform="rotate(0)" d="M-1.5 0 L0 -20 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -20 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -20 L1.5 0Z"/></g></g><circle class="wt-hub" cx="305" cy="70" r="2.8"/><path class="wt-tower" d="M335 130 L341 130 L339.4 84 L336.6 84Z"/><g class="rotor" style="transform-origin:338px 84px;animation-duration:6.2s"><g transform="translate(338 84)"><path class="wt-blade" transform="rotate(0)" d="M-1.5 0 L0 -20 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -20 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -20 L1.5 0Z"/></g></g><circle class="wt-hub" cx="338" cy="84" r="2.8"/><path class="wire good" d="M338 124 H288"/><path class="wire good" d="M272 117 H268"/><rect class="s-metal" x="272" y="104" width="16" height="26" rx="2"/><path class="s-sun" d="M284 108 L278 119 H283 L281 128 L289 115 H284Z"/><g class="m-tag good" transform="translate(14 12)"><rect width="162" height="19" rx="9.5"/><text x="81.0" y="13" text-anchor="middle">Surya, angin, dan baterai</text></g></g></svg><figcaption><span class="m-p"><b>Masalah:</b> Cerobong PLN melepas asap dan CO₂ karena listrik data center banyak berasal dari batu bara. CO₂ menumpuk di udara dan membuat bumi makin panas.</span><span class="m-s"><b>Solusi:</b> Panel surya, turbin angin, dan baterai menyuplai listrik, sehingga asap PLN tinggal sedikit.</span></figcaption></figure><p><b>Masalah:</b> Data center menyala 24 jam sehari dan memakai listrik sangat banyak. Jika listrik berasal dari PLN yang masih banyak memakai batu bara, CO₂ yang dilepas ke udara juga besar.</p><p><b>Akibatnya:</b> CO₂ menumpuk di udara dan membuat bumi makin panas.</p><p><b>Solusi:</b> Pasang panel surya, angin, dan baterai. Pakai juga server dan gedung yang hemat listrik supaya angka PUE kecil.</p><p class="try"><b>Coba di simulasi:</b> Buka tab Energi di Game Simulasi, lalu geser panel surya dan angin. Lihat perubahan ton CO₂ per hari di kartu Listrik dan karbon.</p></div><div class="prob" id="prob-2" role="tabpanel" aria-labelledby="chip-2" hidden><h3>2. Air habis dan sumur warga kering</h3><figure class="pv" data-mode="p" data-auto="1"><div class="pv-top"><div class="pv-seg" role="group" aria-label="Tampilan gambar"><button type="button" data-m="p" aria-pressed="true">Masalah</button><button type="button" data-m="s" aria-pressed="false">Solusi</button></div></div><svg class="pvsvg" viewBox="0 0 360 190" role="img" aria-label="Penampang air: pendingin menyedot air tanah sehingga sumur warga kering, atau memakai air hujan dan daur ulang"><defs><linearGradient id="pvg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient></defs><rect width="360" height="190" fill="url(#pvg2)"/><rect class="s-soil" y="84" width="360" height="106"/><rect class="s-land" y="81" width="360" height="6"/><rect class="s-aqua m-p" x="0" y="148" width="360" height="42"/><rect class="s-aqua m-s" x="0" y="116" width="360" height="74"/><rect class="s-bldg" x="16" y="56" width="96" height="28"/><g class="s-win"><rect x="22" y="64" width="12" height="5"/><rect x="41" y="64" width="12" height="5"/><rect x="60" y="64" width="12" height="5"/><rect x="79" y="64" width="12" height="5"/><rect x="98" y="64" width="12" height="5"/><rect x="22" y="75" width="12" height="5"/><rect x="41" y="75" width="12" height="5"/><rect x="60" y="75" width="12" height="5"/><rect x="79" y="75" width="12" height="5"/><rect x="98" y="75" width="12" height="5"/></g><text class="pv-tl" x="16" y="100">Data center</text><g><rect class="s-house" x="226" y="64" width="26" height="20"/><path class="s-roof" d="M222 64 L239 48 L256 64Z"/><rect class="s-bldg2" x="235" y="73" width="7" height="11"/></g><g><rect class="s-house" x="264" y="64" width="26" height="20"/><path class="s-roof" d="M260 64 L277 48 L294 64Z"/><rect class="s-bldg2" x="273" y="73" width="7" height="11"/></g><g><rect class="s-house" x="302" y="64" width="26" height="20"/><path class="s-roof" d="M298 64 L315 48 L332 64Z"/><rect class="s-bldg2" x="311" y="73" width="7" height="11"/></g><g class="m-p"><path class="s-well dry" d="M239 84 V136"/><path class="s-well dry" d="M277 84 V136"/><path class="s-well dry" d="M315 84 V136"/><polygon class="s-metal" points="28,56 54,56 50,38 32,38"/><polygon class="s-metal" points="60,56 86,56 82,38 64,38"/><ellipse class="s-bldg2" cx="41" cy="38" rx="9" ry="2.5"/><ellipse class="s-bldg2" cx="73" cy="38" rx="9" ry="2.5"/><circle class="puff p-vap" cx="41" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.2s;animation-delay:-0.00s"/><circle class="puff p-vap" cx="41" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.2s;animation-delay:-0.84s"/><circle class="puff p-vap" cx="41" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.2s;animation-delay:-1.68s"/><circle class="puff p-vap" cx="41" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.2s;animation-delay:-2.52s"/><circle class="puff p-vap" cx="41" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.2s;animation-delay:-3.36s"/><circle class="puff p-vap" cx="73" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.6s;animation-delay:-0.00s"/><circle class="puff p-vap" cx="73" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.6s;animation-delay:-0.92s"/><circle class="puff p-vap" cx="73" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.6s;animation-delay:-1.84s"/><circle class="puff p-vap" cx="73" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.6s;animation-delay:-2.76s"/><circle class="puff p-vap" cx="73" cy="34" r="6" style="--dx:22px;--dy:-34px;--s:2.6;animation-duration:4.6s;animation-delay:-3.68s"/><path class="s-pipe" d="M100 84 V168"/><path class="wire blue" d="M100 168 V84"/><path class="arrow-down" d="M212 118 V140 M206 134 L212 142 L218 134"/><circle class="pulse-bad" cx="279" cy="136" r="14"/><g class="m-tag bad" transform="translate(108 96)"><rect width="114" height="19" rx="9.5"/><text x="57.0" y="13" text-anchor="middle">Air tanah disedot</text></g><g class="m-tag bad" transform="translate(104 120)"><rect width="97" height="19" rx="9.5"/><text x="48.5" y="13" text-anchor="middle">Muka air turun</text></g><g class="m-tag bad" transform="translate(212 12)"><rect width="120" height="19" rx="9.5"/><text x="60.0" y="13" text-anchor="middle">Sumur warga kering</text></g></g><g class="m-s"><path class="s-well" d="M239 84 V136"/><path class="s-well" d="M277 84 V136"/><path class="s-well" d="M315 84 V136"/><rect class="s-pipe" x="30" y="40" width="68" height="14" rx="7"/><path class="wire good" d="M38 47 H90"/><ellipse class="s-cloud" cx="158" cy="22" rx="26" ry="9"/><ellipse class="s-cloud" cx="172" cy="16" rx="16" ry="8"/><line class="rain" x1="146" y1="32" x2="146" y2="38" style="animation-delay:-0.0s"/><line class="rain" x1="156" y1="32" x2="156" y2="38" style="animation-delay:-0.25s"/><line class="rain" x1="166" y1="32" x2="166" y2="38" style="animation-delay:-0.5s"/><line class="rain" x1="176" y1="32" x2="176" y2="38" style="animation-delay:-0.75s"/><rect class="s-aqua" x="146" y="56" width="36" height="28" rx="3"/><rect x="146" y="56" width="36" height="28" rx="3" fill="none" style="stroke:var(--pipe);stroke-width:2.5"/><path class="s-pipe" d="M146 76 H112"/><path class="wire blue" d="M146 76 H112"/><g class="m-tag good" transform="translate(16 12)"><rect width="120" height="19" rx="9.5"/><text x="60.0" y="13" text-anchor="middle">Pendingin tertutup</text></g><g class="m-tag good" transform="translate(212 12)"><rect width="132" height="19" rx="9.5"/><text x="66.0" y="13" text-anchor="middle">Hujan dan daur ulang</text></g></g></svg><figcaption><span class="m-p"><b>Masalah:</b> Menara pendingin menguapkan banyak air yang disedot dari tanah. Muka air tanah turun dan sumur warga kering.</span><span class="m-s"><b>Solusi:</b> Pendingin tertutup memakai air berulang dan tandon menampung air hujan, jadi air tanah warga tetap terisi.</span></figcaption></figure><p><b>Masalah:</b> Menara pendingin membuang panas dengan cara menguapkan air. Jika airnya diambil dari air tanah atau PDAM yang juga dipakai warga, jumlahnya bisa melebihi sisa air yang aman.</p><p><b>Akibatnya:</b> Muka air tanah turun, sumur warga bisa kering, dan keran di rumah warga airnya kecil.</p><p><b>Solusi:</b> Pakai pendingin cair tertutup, daur ulang air pendingin, dan manfaatkan air hujan atau air limbah yang sudah diolah.</p><p class="try"><b>Coba di simulasi:</b> Buka tab Pendingin dan air, ganti sistem pendingin, naikkan daur ulang, lalu ganti sumber air. Lihat garis air tanah di gambar dan kartu Air.</p></div><div class="prob" id="prob-3" role="tabpanel" aria-labelledby="chip-3" hidden><h3>3. Air buangan mencemari sungai</h3><figure class="pv" data-mode="p" data-auto="1"><div class="pv-top"><div class="pv-seg" role="group" aria-label="Tampilan gambar"><button type="button" data-m="p" aria-pressed="true">Masalah</button><button type="button" data-m="s" aria-pressed="false">Solusi</button></div></div><svg class="pvsvg" viewBox="0 0 360 190" role="img" aria-label="Air limbah pendingin mengalir ke sungai, dengan atau tanpa IPAL"><defs><linearGradient id="pvg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient></defs><rect width="360" height="190" fill="url(#pvg3)"/><rect class="s-soil" y="96" width="360" height="94"/><rect class="s-land" y="93" width="360" height="6"/><path class="pv-river-bad m-p" d="M196 100 H360 V152 H196 Q186 126 196 100Z"/><path class="pv-river-good m-s" d="M196 100 H360 V152 H196 Q186 126 196 100Z"/><path class="rip" d="M214 108 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0"/><rect class="s-bldg" x="12" y="52" width="78" height="44"/><g class="s-win"><rect x="17" y="60" width="12" height="6"/><rect x="36" y="60" width="12" height="6"/><rect x="55" y="60" width="12" height="6"/><rect x="74" y="60" width="12" height="6"/><rect x="17" y="71" width="12" height="6"/><rect x="36" y="71" width="12" height="6"/><rect x="55" y="71" width="12" height="6"/><rect x="74" y="71" width="12" height="6"/><rect x="17" y="82" width="12" height="6"/><rect x="36" y="82" width="12" height="6"/><rect x="55" y="82" width="12" height="6"/><rect x="74" y="82" width="12" height="6"/></g><text class="pv-tl" x="12" y="150">Data center</text><rect class="s-trunk" x="332.5" y="84" width="3" height="12"/><circle class="s-leaf" cx="334" cy="78" r="9"/><rect class="s-trunk" x="348.5" y="84" width="3" height="12"/><circle class="s-leaf" cx="350" cy="78" r="9"/><g class="m-p"><path class="s-pipe" d="M60 96 V116 H196"/><path class="wire brown" d="M60 100 V116 H196"/><circle class="drift" cx="204" cy="115" r="4" fill="var(--trunk)" style="animation-delay:-0s"/><circle class="drift" cx="204" cy="128" r="6" fill="var(--trunk)" style="animation-delay:-1.8s"/><circle class="drift" cx="204" cy="141" r="4" fill="var(--trunk)" style="animation-delay:-3.4s"/><circle class="drift" cx="204" cy="121" r="6" fill="var(--trunk)" style="animation-delay:-5s"/><g transform="translate(250 106)"><g class="bob" style="animation-delay:-0s"><g transform="scale(1,-1)"><ellipse rx="8" ry="4" fill="var(--smoke)"/><path d="M-8 0 L-14 -4.5 V4.5Z" fill="var(--smoke)"/><path d="M2 -3 l3 3 M5 -3 l-3 3" stroke="var(--ink)" stroke-width="1.2" fill="none"/></g></g></g><g transform="translate(300 106)"><g class="bob" style="animation-delay:-1.2s"><g transform="scale(1,-1)"><ellipse rx="8" ry="4" fill="var(--smoke)"/><path d="M-8 0 L-14 -4.5 V4.5Z" fill="var(--smoke)"/><path d="M2 -3 l3 3 M5 -3 l-3 3" stroke="var(--ink)" stroke-width="1.2" fill="none"/></g></g></g><circle class="pulse-bad" cx="196" cy="116" r="14"/><g class="m-tag bad" transform="translate(104 72)"><rect width="162" height="19" rx="9.5"/><text x="81.0" y="13" text-anchor="middle">Limbah langsung ke sungai</text></g><g class="m-tag bad" transform="translate(240 40)"><rect width="102" height="19" rx="9.5"/><text x="51.0" y="13" text-anchor="middle">Sungai tercemar</text></g></g><g class="m-s"><path class="s-pipe" d="M60 96 V116 H100"/><path class="wire brown" d="M60 100 V116 H100"/><path class="s-pipe" d="M162 116 H196"/><path class="wire blue" d="M162 116 H196"/><rect x="100" y="100" width="62" height="32" rx="5" style="fill:var(--surface);stroke:var(--accent);stroke-width:2.5"/><rect x="104" y="104" width="16" height="24" rx="2" fill="var(--pond-bad)" opacity=".85"/><rect x="124" y="104" width="16" height="24" rx="2" fill="var(--pond-warn)" opacity=".85"/><rect x="144" y="104" width="14" height="24" rx="2" fill="var(--pond-good)"/><circle class="s-leaf grow" cx="132" cy="122" r="2.6"/><circle class="s-leaf grow" cx="128" cy="112" r="2.2" style="animation-delay:-1s"/><circle class="s-leaf grow" cx="134" cy="110" r="2.2" style="animation-delay:-2s"/><g transform="translate(205 112)"><g class="fish" style="animation-duration:8s;animation-delay:-0s"><ellipse rx="8" ry="4" fill="var(--sun)"/><path d="M-8 0 L-14 -4.5 V4.5Z" fill="var(--sun)"/><circle cx="4" cy="-1" r="1.1" fill="#10262B"/></g></g><g transform="translate(205 128)"><g class="fish" style="animation-duration:9s;animation-delay:-3s"><ellipse rx="8" ry="4" fill="var(--sun)"/><path d="M-8 0 L-14 -4.5 V4.5Z" fill="var(--sun)"/><circle cx="4" cy="-1" r="1.1" fill="#10262B"/></g></g><g transform="translate(205 141)"><g class="fish" style="animation-duration:7s;animation-delay:-5s"><ellipse rx="8" ry="4" fill="var(--sun)"/><path d="M-8 0 L-14 -4.5 V4.5Z" fill="var(--sun)"/><circle cx="4" cy="-1" r="1.1" fill="#10262B"/></g></g><g class="m-tag good" transform="translate(104 72)"><rect width="138" height="19" rx="9.5"/><text x="69.0" y="13" text-anchor="middle">IPAL membersihkan air</text></g><g class="m-tag good" transform="translate(228 40)"><rect width="126" height="19" rx="9.5"/><text x="63.0" y="13" text-anchor="middle">Sungai tetap bersih</text></g></g></svg><figcaption><span class="m-p"><b>Masalah:</b> Air buangan pendingin mengalir langsung ke sungai membawa mineral dan bahan kimia. Sungai keruh dan ikan mati.</span><span class="m-s"><b>Solusi:</b> IPAL mengendapkan, mengolah dengan mikroba, lalu membersihkan air sebelum masuk sungai.</span></figcaption></figure><p><b>Masalah:</b> Air buangan pendingin membawa mineral dan bahan kimia. Jika langsung dibuang ke saluran, kualitas air sungai dan kolam di sekitar menurun.</p><p><b>Akibatnya:</b> Air menjadi keruh dan tercemar, sehingga warga dan makhluk hidup di sekitarnya terganggu.</p><p><b>Solusi:</b> Pasang IPAL agar air dibersihkan dulu sebelum dibuang. Daur ulang air juga membuat air buangan makin sedikit.</p><p class="try"><b>Coba di simulasi:</b> Di tab Pendingin dan air, nyalakan IPAL. Perhatikan warna kolam di gambar, lalu klik kotak IPAL untuk melihat cara kerjanya.</p></div><div class="prob" id="prob-4" role="tabpanel" aria-labelledby="chip-4" hidden><h3>4. Suara bising dan asap</h3><figure class="pv" data-mode="p" data-auto="1"><div class="pv-top"><div class="pv-seg" role="group" aria-label="Tampilan gambar"><button type="button" data-m="p" aria-pressed="true">Masalah</button><button type="button" data-m="s" aria-pressed="false">Solusi</button></div></div><svg class="pvsvg" viewBox="0 0 360 190" role="img" aria-label="Suara kipas dan genset menjalar ke rumah warga, atau tertahan dinding dan pohon"><defs><linearGradient id="pvg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient><clipPath id="pvclip4"><rect x="0" y="0" width="229" height="190"/></clipPath></defs><rect width="360" height="190" fill="url(#pvg4)"/><rect class="s-soil" y="120" width="360" height="70"/><rect class="s-land" y="117" width="360" height="6"/><rect class="s-bldg" x="14" y="62" width="96" height="58"/><g class="s-win"><rect x="20" y="84" width="12" height="7"/><rect x="38" y="84" width="12" height="7"/><rect x="56" y="84" width="12" height="7"/><rect x="74" y="84" width="12" height="7"/><rect x="92" y="84" width="12" height="7"/><rect x="20" y="96" width="12" height="7"/><rect x="38" y="96" width="12" height="7"/><rect x="56" y="96" width="12" height="7"/><rect x="74" y="96" width="12" height="7"/><rect x="92" y="96" width="12" height="7"/><rect x="20" y="108" width="12" height="7"/><rect x="38" y="108" width="12" height="7"/><rect x="56" y="108" width="12" height="7"/><rect x="74" y="108" width="12" height="7"/><rect x="92" y="108" width="12" height="7"/></g><rect class="s-metal" x="26" y="50" width="24" height="12" rx="2"/><rect class="s-metal" x="64" y="50" width="24" height="12" rx="2"/><circle class="s-bldg2" cx="38" cy="56" r="5.5"/><circle class="s-bldg2" cx="76" cy="56" r="5.5"/><g style="stroke:var(--win)"><g class="fan" style="transform-origin:38px 56px"><path d="M38 52 V60 M34 56 H42"/></g><g class="fan" style="transform-origin:76px 56px"><path d="M76 52 V60 M72 56 H80"/></g></g><g><rect class="s-house" x="294" y="100" width="26" height="20"/><path class="s-roof" d="M290 100 L307 84 L324 100Z"/><rect class="s-bldg2" x="303" y="109" width="7" height="11"/></g><g><rect class="s-house" x="330" y="100" width="26" height="20"/><path class="s-roof" d="M326 100 L343 84 L360 100Z"/><rect class="s-bldg2" x="339" y="109" width="7" height="11"/></g><g class="m-p"><rect class="s-metal" x="118" y="104" width="22" height="16" rx="2"/><rect class="s-bldg2" x="133" y="92" width="5" height="13"/><circle class="puff p-gen" cx="135.5" cy="90" r="4" style="--dx:16px;--dy:-46px;--s:3;animation-duration:3.4s;animation-delay:-0.00s"/><circle class="puff p-gen" cx="135.5" cy="90" r="4" style="--dx:16px;--dy:-46px;--s:3;animation-duration:3.4s;animation-delay:-0.85s"/><circle class="puff p-gen" cx="135.5" cy="90" r="4" style="--dx:16px;--dy:-46px;--s:3;animation-duration:3.4s;animation-delay:-1.70s"/><circle class="puff p-gen" cx="135.5" cy="90" r="4" style="--dx:16px;--dy:-46px;--s:3;animation-duration:3.4s;animation-delay:-2.55s"/><g style="--tone:var(--bad)"><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-0.0s"/><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-1.2s"/><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-2.4s"/></g><text class="zzz" x="300" y="80">Zzz</text><text class="zzz" x="336" y="80" style="animation-delay:-1.2s">Zzz</text><g class="m-tag bad" transform="translate(122 62)"><rect width="79" height="19" rx="9.5"/><text x="39.5" y="13" text-anchor="middle">Asap genset</text></g><g class="m-tag bad" transform="translate(196 14)"><rect width="138" height="19" rx="9.5"/><text x="69.0" y="13" text-anchor="middle">Suara 68 dB, batas 55</text></g><g class="m-tag bad" transform="translate(206 46)"><rect width="114" height="19" rx="9.5"/><text x="57.0" y="13" text-anchor="middle">Warga sulit tidur</text></g></g><g class="m-s"><rect class="s-metal" x="118" y="100" width="18" height="20" rx="2"/><path class="s-sun" d="M128 104 L122 112 H127 L125 118 L133 110 H128Z"/><g clip-path="url(#pvclip4)" style="--tone:var(--ink2)"><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-0.0s"/><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-1.2s"/><circle class="wv" cx="80" cy="64" r="240" vector-effect="non-scaling-stroke" style="animation-delay:-2.4s"/></g><rect class="s-wall" x="230" y="76" width="9" height="44"/><rect class="s-trunk" x="246.5" y="106" width="3" height="14"/><circle class="s-leaf" cx="248" cy="100" r="9"/><rect class="s-trunk" x="258.5" y="106" width="3" height="14"/><circle class="s-leaf" cx="260" cy="100" r="9"/><rect class="s-trunk" x="270.5" y="106" width="3" height="14"/><circle class="s-leaf" cx="272" cy="100" r="9"/><rect class="s-trunk" x="282.5" y="106" width="3" height="14"/><circle class="s-leaf" cx="284" cy="100" r="9"/><g class="m-tag good" transform="translate(108 62)"><rect width="120" height="19" rx="9.5"/><text x="60.0" y="13" text-anchor="middle">Baterai tanpa asap</text></g><g class="m-tag good" transform="translate(196 14)"><rect width="132" height="19" rx="9.5"/><text x="66.0" y="13" text-anchor="middle">Suara di bawah 55 dB</text></g><g class="m-tag good" transform="translate(206 46)"><rect width="114" height="19" rx="9.5"/><text x="57.0" y="13" text-anchor="middle">Dinding dan pohon</text></g></g></svg><figcaption><span class="m-p"><b>Masalah:</b> Kipas dan genset menghasilkan bunyi sekitar 68 dB, melewati batas 55 dB, ditambah asap diesel. Warga sulit tidur.</span><span class="m-s"><b>Solusi:</b> Dinding peredam, sabuk pohon, dan baterai cadangan menurunkan bunyi di bawah 55 dB tanpa asap.</span></figcaption></figure><p><b>Masalah:</b> Kipas, chiller, dan genset diesel menghasilkan bunyi yang keras. Genset diesel juga mengeluarkan asap saat diuji.</p><p><b>Akibatnya:</b> Warga sulit tidur dan udara sekitar kurang bersih. Batas kebisingan di permukiman adalah 55 dB.</p><p><b>Solusi:</b> Bangun dinding peredam suara, tanam sabuk hijau, pilih baterai sebagai listrik cadangan, dan gunakan pendingin yang lebih senyap.</p><p class="try"><b>Coba di simulasi:</b> Pilih listrik cadangan di tab Energi, lalu nyalakan dinding peredam dan geser sabuk hijau di tab Sekitar. Lihat angka dB di kartu Suara dan udara.</p></div><div class="prob" id="prob-5" role="tabpanel" aria-labelledby="chip-5" hidden><h3>5. Panas yang terbuang</h3><figure class="pv" data-mode="p" data-auto="1"><div class="pv-top"><div class="pv-seg" role="group" aria-label="Tampilan gambar"><button type="button" data-m="p" aria-pressed="true">Masalah</button><button type="button" data-m="s" aria-pressed="false">Solusi</button></div></div><svg class="pvsvg" viewBox="0 0 360 190" role="img" aria-label="Panas server terbuang ke udara, atau dipakai rumah kaca, pemanas air, dan diubah menjadi listrik"><defs><linearGradient id="pvg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient></defs><rect width="360" height="190" fill="url(#pvg5)"/><rect class="s-soil" y="124" width="360" height="66"/><rect class="s-land" y="121" width="360" height="6"/><rect class="s-bldg" x="16" y="68" width="116" height="56"/><g class="s-win"><rect x="24" y="80" width="10" height="6"/><rect x="39" y="80" width="10" height="6"/><rect x="54" y="80" width="10" height="6"/><rect x="69" y="80" width="10" height="6"/><rect x="84" y="80" width="10" height="6"/><rect x="99" y="80" width="10" height="6"/><rect x="114" y="80" width="10" height="6"/><rect x="24" y="91" width="10" height="6"/><rect x="39" y="91" width="10" height="6"/><rect x="54" y="91" width="10" height="6"/><rect x="69" y="91" width="10" height="6"/><rect x="84" y="91" width="10" height="6"/><rect x="99" y="91" width="10" height="6"/><rect x="114" y="91" width="10" height="6"/><rect x="24" y="102" width="10" height="6"/><rect x="39" y="102" width="10" height="6"/><rect x="54" y="102" width="10" height="6"/><rect x="69" y="102" width="10" height="6"/><rect x="84" y="102" width="10" height="6"/><rect x="99" y="102" width="10" height="6"/><rect x="114" y="102" width="10" height="6"/></g><g><rect class="s-house" x="304" y="104" width="26" height="20"/><path class="s-roof" d="M300 104 L317 88 L334 104Z"/><rect class="s-bldg2" x="313" y="113" width="7" height="11"/></g><text class="pv-tl" x="16" y="142">Data center</text><g class="m-p"><rect class="pv-haze" width="360" height="124"/><path class="heatw" d="M30 66 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-0.0s"/><path class="heatw" d="M52 66 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-0.6s"/><path class="heatw" d="M74 66 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-1.2s"/><path class="heatw" d="M96 66 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-1.7999999999999998s"/><path class="heatw" d="M118 66 q4 -5 0 -10 t0 -10 t0 -10" style="animation-delay:-2.4s"/><path class="heatr" d="M140 44 q5 -4 10 0 t10 0 t10 0 t10 0" style="animation-delay:-0.0s"/><path class="heatr" d="M140 56 q5 -4 10 0 t10 0 t10 0 t10 0" style="animation-delay:-1.2s"/><path class="heatr" d="M140 68 q5 -4 10 0 t10 0 t10 0 t10 0" style="animation-delay:-2.4s"/><g class="m-tag bad" transform="translate(140 14)"><rect width="132" height="19" rx="9.5"/><text x="66.0" y="13" text-anchor="middle">Panas lepas ke udara</text></g><g class="m-tag bad" transform="translate(246 44)"><rect width="102" height="19" rx="9.5"/><text x="51.0" y="13" text-anchor="middle">Warga kepanasan</text></g></g><g class="m-s"><path class="s-pipe" d="M132 118 H196"/><path class="wire heat" d="M132 118 H196"/><path class="s-pipe" d="M240 118 H256"/><path class="wire heat" d="M240 118 H256"/><path class="wire heat" d="M132 98 H142"/><ellipse class="pulse" cx="160" cy="98" rx="24" ry="17"/><rect class="s-bldg2" x="142" y="86" width="36" height="24" rx="4"/><circle class="s-loop" cx="160" cy="98" r="8"/><path class="s-sun" d="M161 91 L156 99 H159 L158 105 L164 97 H161Z"/><path class="wire good" d="M160 86 V76 H104 V68"/><rect class="s-glass" x="196" y="96" width="44" height="28"/><path class="s-glass" d="M193 96 L218 80 L243 96Z"/><circle class="s-leaf grow" cx="206" cy="118" r="4.5" style="animation-delay:-0s"/><circle class="s-leaf grow" cx="218" cy="116" r="4.5" style="animation-delay:-1s"/><circle class="s-leaf grow" cx="230" cy="118" r="4.5" style="animation-delay:-2s"/><rect class="s-metal" x="256" y="92" width="24" height="32" rx="5"/><path d="M268 100 c4 5 6 8 6 11 a6 6 0 0 1 -12 0 c0 -3 2 -6 6 -11Z" fill="var(--heat)"/><text class="pv-tl" x="160" y="142" text-anchor="middle">Alat daur ulang</text><text class="pv-tl" x="218" y="156" text-anchor="middle">Rumah kaca</text><text class="pv-tl" x="268" y="142" text-anchor="middle">Pemanas air</text><g class="m-tag good" transform="translate(140 14)"><rect width="120" height="19" rx="9.5"/><text x="60.0" y="13" text-anchor="middle">Panas dipakai lagi</text></g><g class="m-tag good" transform="translate(110 40)"><rect width="162" height="19" rx="9.5"/><text x="81.0" y="13" text-anchor="middle">Listrik kembali ke gedung</text></g></g></svg><figcaption><span class="m-p"><b>Masalah:</b> Panas server dibuang begitu saja ke udara. Energi terbuang dan udara sekitar makin hangat.</span><span class="m-s"><b>Solusi:</b> Panas dialirkan ke rumah kaca dan pemanas air, sebagian diubah menjadi listrik oleh alat daur ulang energi.</span></figcaption></figure><p><b>Masalah:</b> Panas dari server biasanya dilepas begitu saja ke udara sekitar.</p><p><b>Akibatnya:</b> Energi terbuang percuma dan udara di sekitar data center menjadi lebih hangat.</p><p><b>Solusi:</b> Alirkan panas itu ke rumah kaca atau pemanas air supaya bisa dipakai lagi. Pasang juga alat daur ulang energi yang mengubah panas itu menjadi listrik untuk dipakai kembali di gedung, sehingga udara hangat dan bunyi yang sampai ke warga berkurang.</p><p class="try"><b>Coba di simulasi:</b> Di tab Energi, nyalakan Alat daur ulang energi. Di tab Sekitar, nyalakan Panas buangan dimanfaatkan. Alat dan rumah kaca akan muncul di gambar lokasi.</p></div><p class="hint">Tantangan: dengan Kredit 150 poin, bisakah kamu membuat semua indikator menjadi hijau? Kalau kamu sudah paham, lanjutkan ke simulasi, lalu kerjakan kuis.</p><div class="nav"><button type="button" class="btn primary" data-go="sim">Lanjut ke Game Simulasi</button></div></section></div></div>
+
+<div id="m-sim" class="panel" role="tabpanel" hidden>
+
+<div class="bar" id="bar">
+  <div class="bar-main">
+    <div class="score"><b id="scoreN">0</b><span>/100</span></div>
+    <div class="grade"><b id="gradeT">–</b><span id="gradeS">–</span></div>
+    <div class="budget"><div class="budget-top"><span>Kredit</span><b id="budT">0/150</b></div><div class="meter"><i id="budBar"></i></div></div>
+  </div>
+  <ul class="dots" id="dots">
+    <li data-c="carbon"><span class="dl"><i></i>Karbon</span><b>–</b></li>
+    <li data-c="water"><span class="dl"><i></i>Air</span><b>–</b></li>
+    <li data-c="noise"><span class="dl"><i></i>Suara</span><b>–</b></li>
+    <li data-c="warga"><span class="dl"><i></i>Warga</span><b>–</b></li>
+  </ul>
+</div>
+
+<main class="grid">
+  <div class="col">
+    <section class="card" aria-labelledby="h-site">
+      <div class="scene-head">
+        <h2 id="h-site">Lokasi Data Center</h2>
+      </div>
+      <svg class="scene" id="scene" viewBox="0 0 720 380" data-season="normal" role="img" aria-label="Penampang lokasi data center, sumber listrik, jalur air, dan rumah warga">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky-top)"/><stop offset="1" style="stop-color:var(--sky-bot)"/></linearGradient>
+          <clipPath id="clipR"><rect x="456" y="60" width="264" height="172"/></clipPath>
+          <radialGradient id="sunCore" cx="42%" cy="40%" r="65%"><stop offset="0" style="stop-color:var(--sun-core)"/><stop offset=".55" style="stop-color:var(--sun)"/><stop offset="1" style="stop-color:var(--sun-edge)"/></radialGradient>
+          <radialGradient id="sunHalo"><stop offset="0" style="stop-color:var(--sun-glow);stop-opacity:.75"/><stop offset=".4" style="stop-color:var(--sun-glow);stop-opacity:.28"/><stop offset="1" style="stop-color:var(--sun-glow);stop-opacity:0"/></radialGradient>
+          <linearGradient id="beamG" x1="1" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--beam);stop-opacity:.55"/><stop offset="1" style="stop-color:var(--beam);stop-opacity:0"/></linearGradient>
+        </defs>
+        <rect width="720" height="232" fill="url(#skyG)"/>
+        <g id="sunG">
+          <g class="beams"><polygon class="beam" points="620,52 664,50 300,232 400,232" fill="url(#beamG)" style="animation-duration:8.0s;animation-delay:-0s"/><polygon class="beam" points="640,56 668,54 450,232 540,232" fill="url(#beamG)" style="animation-duration:9.7s;animation-delay:-1.6s"/><polygon class="beam" points="610,48 636,48 90,232 190,232" fill="url(#beamG)" style="animation-duration:11.4s;animation-delay:-3.1s"/><polygon class="beam" points="660,56 678,60 590,232 660,232" fill="url(#beamG)" style="animation-duration:13.1s;animation-delay:-4.4s"/></g>
+          <circle class="sun-halo" cx="650" cy="46" r="76" fill="url(#sunHalo)"/>
+          <g class="sun-rays"><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(0.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(22.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(45.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(67.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(90.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(112.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(135.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(157.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(180.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(202.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(225.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(247.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(270.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(292.5 650 46)"/><path d="M646.8 20 L650 2 L653.2 20Z" transform="rotate(315.0 650 46)"/><path d="M647.4 20 L650 10 L652.6 20Z" transform="rotate(337.5 650 46)"/></g>
+          <circle id="sun" cx="650" cy="46" r="22" fill="url(#sunCore)"/>
+          <circle class="flare" cx="590" cy="92" r="9" style="animation-delay:-1s"/><circle class="flare" cx="548" cy="124" r="5" style="animation-delay:-2.4s"/><circle class="flare" cx="505" cy="158" r="12" style="animation-delay:-3.8s"/>
+        </g>
+        <g id="clouds"><g class="cloudA"><ellipse class="s-cloud" cx="300" cy="44" rx="34" ry="11"/><ellipse class="s-cloud" cx="322" cy="36" rx="22" ry="10"/><ellipse class="s-cloud" cx="280" cy="40" rx="18" ry="8"/></g><g class="cloudB"><ellipse class="s-cloud" cx="540" cy="82" rx="30" ry="10"/><ellipse class="s-cloud" cx="558" cy="74" rx="18" ry="9"/><ellipse class="s-cloud" cx="522" cy="80" rx="14" ry="7"/></g></g>
+
+        <rect class="s-soil" y="232" width="720" height="148"/>
+        <rect id="aq" class="s-aqua" x="0" y="300" width="720" height="80"/>
+        <rect class="s-land" y="228" width="720" height="8"/>
+        <text class="s-txt" x="14" y="372">Air tanah</text>
+        <path class="s-line" d="M50 232 V240 H352 V232" stroke-dasharray="2 6"/>
+
+        <g id="pln">
+          <rect class="s-bldg2" x="20" y="188" width="58" height="44"/>
+          <rect class="s-bldg2" x="62" y="142" width="14" height="46"/>
+          <g id="plnSmoke"><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-0.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-1.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-2.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-3.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-4.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-5.0s"/><circle class="puff p-pln" cx="69" cy="136" r="7" style="--dx:78px;--dy:-92px;--s:3.4;animation-duration:7s;animation-delay:-6.0s"/></g>
+          <text class="s-txt on" x="25" y="217">PLN</text>
+        </g>
+
+        <g id="wt0"><path class="wt-tower" d="M93 231 L99 231 L97.4 128 L94.6 128Z"/><rect class="wt-base" x="91" y="228" width="10" height="4" rx="1"/><g class="rotor" style="transform-origin:96px 128px;animation-duration:5s"><g transform="translate(96 128)"><path class="wt-blade" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -17 L1.5 0Z"/></g></g><circle class="wt-hub" cx="96" cy="128" r="2.8"/></g>
+        <g id="wt1"><path class="wt-tower" d="M123 231 L129 231 L127.4 144 L124.6 144Z"/><rect class="wt-base" x="121" y="228" width="10" height="4" rx="1"/><g class="rotor" style="transform-origin:126px 144px;animation-duration:6.2s"><g transform="translate(126 144)"><path class="wt-blade" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -17 L1.5 0Z"/></g></g><circle class="wt-hub" cx="126" cy="144" r="2.8"/></g>
+        <g id="wt2"><path class="wt-tower" d="M153 231 L159 231 L157.4 128 L154.6 128Z"/><rect class="wt-base" x="151" y="228" width="10" height="4" rx="1"/><g class="rotor" style="transform-origin:156px 128px;animation-duration:5.6s"><g transform="translate(156 128)"><path class="wt-blade" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -17 L1.5 0Z"/></g></g><circle class="wt-hub" cx="156" cy="128" r="2.8"/></g>
+        <g id="wt3"><path class="wt-tower" d="M183 231 L189 231 L187.4 144 L184.6 144Z"/><rect class="wt-base" x="181" y="228" width="10" height="4" rx="1"/><g class="rotor" style="transform-origin:186px 144px;animation-duration:6.8s"><g transform="translate(186 144)"><path class="wt-blade" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(120)" d="M-1.5 0 L0 -17 L1.5 0Z"/><path class="wt-blade" transform="rotate(240)" d="M-1.5 0 L0 -17 L1.5 0Z"/></g></g><circle class="wt-hub" cx="186" cy="144" r="2.8"/></g>
+
+        <g id="b0"><rect class="s-metal" x="214" y="206" width="15" height="26" rx="2"/><path class="s-sun" d="M223 210 L217 221 H222 L220 230 L228 217 H223 Z"/></g>
+        <g id="b1"><rect class="s-metal" x="232" y="206" width="15" height="26" rx="2"/><path class="s-sun" d="M241 210 L235 221 H240 L238 230 L246 217 H241 Z"/></g>
+
+        <g id="gen"><rect class="s-metal" x="290" y="216" width="20" height="16" rx="2"/><rect class="s-bldg2" x="303" y="205" width="5" height="12"/><circle class="puff p-gen" cx="305.5" cy="203" r="4" style="--dx:12px;--dy:-38px;--s:3;animation-duration:3.4s;animation-delay:-0.0s"/><circle class="puff p-gen" cx="305.5" cy="203" r="4" style="--dx:12px;--dy:-38px;--s:3;animation-duration:3.4s;animation-delay:-0.85s"/><circle class="puff p-gen" cx="305.5" cy="203" r="4" style="--dx:12px;--dy:-38px;--s:3;animation-duration:3.4s;animation-delay:-1.7s"/><circle class="puff p-gen" cx="305.5" cy="203" r="4" style="--dx:12px;--dy:-38px;--s:3;animation-duration:3.4s;animation-delay:-2.55s"/></g>
+        <g id="bu"><rect class="s-metal" x="290" y="216" width="20" height="16" rx="2"/><path class="s-sun" d="M301 218 L295 225 H300 L298 230 L306 222 H301 Z"/></g>
+
+        <g id="recov" tabindex="0" role="button" aria-label="Alat daur ulang energi. Tekan untuk melihat cara kerjanya" aria-expanded="false"><rect x="248" y="198" width="44" height="38" fill="transparent"/><ellipse class="pulse" cx="270" cy="218" rx="22" ry="17"/><rect class="s-bldg2" x="254" y="204" width="32" height="28" rx="4"/><circle class="s-loop" cx="270" cy="218" r="9"/><path class="s-sun" d="M271 211 L265 219 H269 L267 225 L275 216 H271 Z"/><path class="s-loop" d="M270 204 V196 H312"/></g>
+
+        <g id="dc">
+          <rect class="s-bldg" x="312" y="152" width="144" height="80"/>
+          <rect class="s-bldg2" x="312" y="152" width="144" height="8"/>
+          <g class="s-win"><rect x="326" y="166" width="12" height="7"/><rect x="347" y="166" width="12" height="7"/><rect x="368" y="166" width="12" height="7"/><rect x="389" y="166" width="12" height="7"/><rect x="410" y="166" width="12" height="7"/><rect x="431" y="166" width="12" height="7"/><rect x="326" y="180" width="12" height="7"/><rect x="347" y="180" width="12" height="7"/><rect x="368" y="180" width="12" height="7"/><rect x="389" y="180" width="12" height="7"/><rect x="410" y="180" width="12" height="7"/><rect x="431" y="180" width="12" height="7"/><rect x="326" y="194" width="12" height="7"/><rect x="347" y="194" width="12" height="7"/><rect x="368" y="194" width="12" height="7"/><rect x="389" y="194" width="12" height="7"/><rect x="410" y="194" width="12" height="7"/><rect x="431" y="194" width="12" height="7"/></g>
+          <text class="s-txt dc" x="384" y="226" text-anchor="middle" style="font-size:18px">Data center</text>
+        </g>
+
+        <g id="cool-tower">
+          <polygon class="s-metal" points="318,152 346,152 341,126 323,126"/><polygon class="s-metal" points="350,152 378,152 373,126 355,126"/>
+          <ellipse class="s-bldg2" cx="332" cy="126" rx="9" ry="2.5"/><ellipse class="s-bldg2" cx="364" cy="126" rx="9" ry="2.5"/>
+          <g id="vapT"><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-0.0s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-0.84s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-1.68s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-2.52s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-3.36s"/><circle class="puff p-vap" cx="364" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.6s;animation-delay:-0.0s"/><circle class="puff p-vap" cx="364" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.6s;animation-delay:-0.92s"/><circle class="puff p-vap" cx="364" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.6s;animation-delay:-1.84s"/><circle class="puff p-vap" cx="364" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.6s;animation-delay:-2.76s"/><circle class="puff p-vap" cx="364" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.6s;animation-delay:-3.68s"/></g>
+        </g>
+        <g id="cool-chiller">
+          <rect class="s-metal" x="318" y="136" width="28" height="16" rx="2"/><rect class="s-metal" x="350" y="136" width="28" height="16" rx="2"/>
+          <circle class="s-bldg2" cx="332" cy="144" r="6.5"/><circle class="s-bldg2" cx="364" cy="144" r="6.5"/>
+          <g class="fan-wrap" style="stroke:var(--win)"><g class="fan" style="transform-origin:332px 144px"><path d="M332 139 V149 M327 144 H337"/></g><g class="fan" style="transform-origin:364px 144px"><path d="M364 139 V149 M359 144 H369"/></g></g>
+        </g>
+        <g id="cool-hybrid">
+          <polygon class="s-metal" points="318,152 346,152 341,126 323,126"/><ellipse class="s-bldg2" cx="332" cy="126" rx="9" ry="2.5"/>
+          <g id="vapH"><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-0.0s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-0.84s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-1.68s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-2.52s"/><circle class="puff p-vap" cx="332" cy="120" r="7" style="--dx:20px;--dy:-54px;--s:2.6;animation-duration:4.2s;animation-delay:-3.36s"/></g>
+          <rect class="s-metal" x="350" y="136" width="28" height="16" rx="2"/><circle class="s-bldg2" cx="364" cy="144" r="6.5"/>
+          <g class="fan-wrap" style="stroke:var(--win)"><g class="fan" style="transform-origin:364px 144px"><path d="M364 139 V149 M359 144 H369"/></g></g>
+        </g>
+        <g id="cool-liquid">
+          <rect class="s-pipe" x="322" y="138" width="52" height="12" rx="6"/><circle class="s-metal" cx="340" cy="144" r="4.5"/><circle class="s-metal" cx="358" cy="144" r="4.5"/><path class="s-loop" d="M328 144 H368" style="stroke-width:2"/>
+        </g>
+
+        <g id="solar"><g class="pnl" data-i="5"><path class="pn-leg" d="M392.0 140 V152"/><g transform="translate(392.0 138) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-2.25s"/></g></g><g class="pnl" data-i="6"><path class="pn-leg" d="M405.5 140 V152"/><g transform="translate(405.5 138) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-2.7s"/></g></g><g class="pnl" data-i="7"><path class="pn-leg" d="M419.0 140 V152"/><g transform="translate(419.0 138) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-3.15s"/></g></g><g class="pnl" data-i="8"><path class="pn-leg" d="M432.5 140 V152"/><g transform="translate(432.5 138) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-3.6s"/></g></g><g class="pnl" data-i="9"><path class="pn-leg" d="M446.0 140 V152"/><g transform="translate(446.0 138) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-4.05s"/></g></g><g class="pnl" data-i="0"><path class="pn-leg" d="M392.0 148 V152"/><g transform="translate(392.0 146) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-0.0s"/></g></g><g class="pnl" data-i="1"><path class="pn-leg" d="M405.5 148 V152"/><g transform="translate(405.5 146) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-0.45s"/></g></g><g class="pnl" data-i="2"><path class="pn-leg" d="M419.0 148 V152"/><g transform="translate(419.0 146) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-0.9s"/></g></g><g class="pnl" data-i="3"><path class="pn-leg" d="M432.5 148 V152"/><g transform="translate(432.5 146) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-1.35s"/></g></g><g class="pnl" data-i="4"><path class="pn-leg" d="M446.0 148 V152"/><g transform="translate(446.0 146) rotate(-14)"><rect class="s-panel" x="-6" y="-3.2" width="12" height="6.4" rx="1"/><path class="pn-grid" d="M-2 -3.2V3.2M2 -3.2V3.2M-6 0H6"/><rect class="pn-glint" x="-6" y="-3.2" width="12" height="6.4" rx="1" style="animation-delay:-1.8s"/></g></g></g>
+
+        <rect id="wall" class="s-wall" x="488" y="196" width="8" height="36"/>
+        <g id="gh"><path class="s-heat" d="M456 222 H462"/><rect class="s-glass" x="460" y="206" width="26" height="26"/><path class="s-glass" d="M458 206 L473 194 L488 206 Z"/><circle class="s-leaf" cx="467" cy="226" r="3.5"/><circle class="s-leaf" cx="479" cy="224" r="3.5"/></g>
+
+        <g id="trees">
+          <g><rect class="s-trunk" x="506.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="508" cy="214" r="9"/></g>
+          <g><rect class="s-trunk" x="519.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="521" cy="214" r="9"/></g>
+          <g><rect class="s-trunk" x="532.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="534" cy="214" r="9"/></g>
+          <g><rect class="s-trunk" x="545.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="547" cy="214" r="9"/></g>
+          <g><rect class="s-trunk" x="558.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="560" cy="214" r="9"/></g>
+          <g><rect class="s-trunk" x="571.5" y="220" width="3" height="12"/><circle class="s-leaf" cx="573" cy="214" r="9"/></g>
+        </g>
+
+        <g id="rings" clip-path="url(#clipR)" data-st="good"><circle class="s-ring" cx="456" cy="190" r="60"/><circle class="s-ring" cx="456" cy="190" r="100"/><circle class="s-ring" cx="456" cy="190" r="140"/></g>
+
+        <g id="houses">
+          <g><rect class="s-house" x="590" y="210" width="30" height="22"/><path class="s-roof" d="M586 210 L605 192 L624 210Z"/><rect class="s-bldg2" x="602" y="220" width="7" height="12"/></g>
+          <g><rect class="s-house" x="632" y="210" width="30" height="22"/><path class="s-roof" d="M628 210 L647 192 L666 210Z"/><rect class="s-bldg2" x="644" y="220" width="7" height="12"/></g>
+          <g><rect class="s-house" x="674" y="210" width="30" height="22"/><path class="s-roof" d="M670 210 L689 192 L708 210Z"/><rect class="s-bldg2" x="686" y="220" width="7" height="12"/></g>
+        </g>
+
+        <g id="wells"><path class="s-well" d="M605 232 V346"/><path class="s-well" d="M647 232 V346"/><path class="s-well" d="M689 232 V346"/></g>
+        <g id="tank"><path class="s-pipe" d="M371 232 V252"/><rect id="tankFill" class="s-aqua" x="339" y="255" width="64" height="34" rx="3"/><rect x="336" y="252" width="70" height="40" rx="6" fill="none" style="stroke:var(--pipe);stroke-width:3"/></g>
+        <g id="gw"><path class="s-pipe" d="M330 232 V352"/><circle class="s-metal" cx="330" cy="270" r="7"/></g>
+        <path id="pdam" class="s-pipe" d="M392 232 V252 H692 M605 252 V232 M647 252 V232 M689 252 V232"/>
+        <path id="wp" class="s-pipe" d="M440 232 V274 H522"/>
+        <g id="ipal" tabindex="0" role="button" aria-label="IPAL, pengolah air limbah. Tekan untuk melihat cara kerjanya" aria-expanded="false"><rect x="460" y="254" width="58" height="40" fill="transparent"/><ellipse class="pulse" cx="489" cy="274" rx="34" ry="22"/><rect x="466" y="260" width="46" height="28" rx="5" style="fill:var(--surface);stroke:var(--accent);stroke-width:3"/><text class="s-txt" x="489" y="280" text-anchor="middle" style="font-size:16px">IPAL</text></g>
+        <ellipse id="pond" class="s-pond" cx="560" cy="274" rx="38" ry="14" data-st="good"/>
+        <path id="loop" class="s-loop" d="M489 288 V312 H425 V236"/>
+      </svg>
+      <p class="cap" id="recovHint" hidden><b>Coba klik alat daur ulang energi</b> di gambar (kotak dengan lambang petir) untuk melihat cara kerjanya.</p>
+      <div class="rc" id="recovInfo" hidden>
+        <div class="rc-head"><h3>Cara kerja alat daur ulang energi</h3><button type="button" class="btn" id="recovClose">Tutup</button></div>
+        <ol class="flow">
+          <li class="fstep" style="--d:0s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="9" y="6" width="30" height="36" rx="4" fill="var(--bldg-dark)"/><g fill="var(--win)"><rect x="14" y="12" width="20" height="4" rx="1"/><rect x="14" y="20" width="20" height="4" rx="1"/><rect x="14" y="28" width="20" height="4" rx="1"/></g><path d="M18 46c-3-3 3-4 0-8M30 46c-3-3 3-4 0-8" stroke="var(--heat)" stroke-width="3" fill="none" stroke-linecap="round"/></svg><b>Server menghasilkan panas</b><span>Semakin banyak server menyala, semakin banyak panas yang keluar dan biasanya terbuang ke udara.</span></li>
+          <li class="fstep" style="--d:1.5s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="6" y="14" width="36" height="20" rx="4" fill="var(--metal)"/><path d="M12 20h24M12 28h24" stroke="var(--win)" stroke-width="3" stroke-linecap="round"/><path d="M4 24h4M40 24h4" stroke="var(--heat)" stroke-width="3" stroke-linecap="round"/></svg><b>Penukar panas menangkapnya</b><span>Panas dipindahkan ke cairan khusus yang mendidih pada suhu rendah, sehingga berubah menjadi uap.</span></li>
+          <li class="fstep" style="--d:3s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="var(--panel)"/><path d="M24 24V10M24 24l12 7M24 24l-12 7" stroke="var(--win)" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="24" r="3.5" fill="var(--accent-ink)"/></svg><b>Uap memutar turbin</b><span>Uap bertekanan memutar turbin kecil yang tersambung ke generator.</span></li>
+          <li class="fstep" style="--d:4.5s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="8" y="10" width="32" height="28" rx="5" fill="var(--bldg-dark)"/><path d="M26 14l-9 12h7l-3 10 11-14h-7z" fill="var(--sun)"/></svg><b>Generator menghasilkan listrik</b><span>Listrik dialirkan kembali ke gedung dan dipakai lagi oleh server dan pendingin. Uap mendingin, kembali jadi cairan, lalu siklus diulang.</span></li>
+        </ol>
+        <p class="rc-note"><b>Untuk warga:</b> panas yang dilepas ke udara berkurang, kipas tidak perlu bekerja sekeras dulu, dan data center memakai lebih sedikit listrik PLN. PUE sekarang: <b id="rcPue">–</b></p>
+      </div>
+      <p class="cap" id="ipalHint" hidden><b>Coba klik kotak IPAL</b> di bawah tanah (dekat kolam) untuk melihat cara kerjanya.</p>
+      <div class="rc" id="ipalInfo" hidden>
+        <div class="rc-head"><h3>Cara kerja IPAL</h3><button type="button" class="btn" id="ipalClose">Tutup</button></div>
+        <ol class="flow">
+          <li class="fstep" style="--d:0s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M6 20h22" stroke="var(--pipe)" stroke-width="6" stroke-linecap="round"/><path d="M28 14h6v14" stroke="var(--pipe)" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="14" cy="30" r="3" fill="var(--pond-bad)"/><circle cx="22" cy="35" r="2.5" fill="var(--pond-bad)"/><circle cx="31" cy="36" r="3" fill="var(--pond-bad)"/></svg><b>Air buangan masuk</b><span>Air bekas pendingin membawa mineral, kotoran, dan sisa bahan kimia. Ia dialirkan ke IPAL, tidak langsung ke sungai.</span></li>
+          <li class="fstep" style="--d:1.5s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="8" y="8" width="32" height="34" rx="4" fill="var(--aqua)" opacity=".5"/><rect x="8" y="30" width="32" height="12" rx="3" fill="var(--pond-bad)"/><path d="M14 14v8M24 14v8M34 14v8" stroke="var(--ink2)" stroke-width="2" stroke-dasharray="1 4" stroke-linecap="round"/></svg><b>Kotoran diendapkan</b><span>Air ditampung di bak. Kotoran yang berat tenggelam ke dasar dan benda mengambang disaring.</span></li>
+          <li class="fstep" style="--d:3s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="8" y="8" width="32" height="34" rx="4" fill="var(--aqua)" opacity=".5"/><g fill="var(--leaf)"><circle cx="17" cy="20" r="3.5"/><circle cx="29" cy="25" r="3.5"/><circle cx="20" cy="33" r="3.5"/><circle cx="32" cy="14" r="2.5"/></g></svg><b>Diolah dengan mikroba</b><span>Mikroba pengurai memakan bahan pencemar, lalu bahan kimia yang tersisa dinetralkan sampai aman.</span></li>
+          <li class="fstep" style="--d:4.5s"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><ellipse cx="24" cy="30" rx="18" ry="9" fill="var(--pond-good)"/><path d="M24 6c5 7 8 11 8 15a8 8 0 0 1-16 0c0-4 3-8 8-15Z" fill="var(--aqua)"/></svg><b>Air bersih keluar</b><span>Air yang sudah bersih dialirkan ke kolam dan saluran, atau dipakai lagi untuk pendingin.</span></li>
+        </ol>
+        <p class="rc-note"><b>Untuk warga:</b> sungai dan kolam di sekitar tidak tercemar. Air buangan yang dilepas sekarang: <b id="ipVol">–</b> m³ per hari.</p>
+      </div>
+      <p class="cap">Penampang lokasi. Di atas garis tanah ada pembangkit listrik, turbin angin, alat daur ulang energi, data center dengan panel surya di atapnya, dan rumah warga. Di bawahnya ada pipa air, tandon, dan air tanah.</p>
+    </section>
+
+    <section aria-labelledby="h-rapor">
+      <div class="sec-head"><h2 id="h-rapor">Raport Lingkungan</h2><p class="mission" id="mission"></p></div>
+      <div class="cards" id="cards">
+        <article class="card ind" data-c="carbon"><header><h3>Listrik dan karbon</h3><span class="pill">–</span></header><p class="big"><b>–</b><small>ton CO₂ per hari</small></p><div class="meter"><i></i></div><p class="sub">–</p></article>
+        <article class="card ind" data-c="water"><header><h3>Air</h3><span class="pill">–</span></header><p class="big"><b>–</b><small>m³ air bersih per hari</small></p><div class="meter"><i></i></div><p class="sub">–</p></article>
+        <article class="card ind" data-c="noise"><header><h3>Suara dan udara</h3><span class="pill">–</span></header><p class="big"><b>–</b><small>dB di rumah warga</small></p><div class="meter"><i></i></div><p class="sub">–</p></article>
+        <article class="card ind" data-c="warga"><header><h3>Kenyamanan warga</h3><span class="pill">–</span></header><p class="big"><b>–</b><small>dari 100 poin</small></p><div class="meter"><i></i></div><p class="sub">–</p></article>
+      </div>
+    </section>
+
+    <section class="notes-sec" aria-labelledby="h-notes">
+      <h2 id="h-notes">Apa yang terjadi?</h2>
+      <ul class="notes" id="notes"></ul>
+      <div class="copyrow"><button type="button" class="btn primary" id="copyBtn">Salin ringkasan desain</button><span id="copyMsg"></span></div>
+      <textarea id="copyArea" readonly hidden aria-label="Ringkasan desain"></textarea>
+    </section>
+  </div>
+  <div class="col">
+    <section class="card" aria-labelledby="h-ctl">
+      <h2 id="h-ctl">Atur desain</h2>
+      <p class="hint" style="margin-top:4px">Setiap pilihan punya biaya dalam poin. Kredit proyek 150 poin, jadi tidak semua bisa dipasang sekaligus.</p>
+      <div class="tabs" role="tablist" aria-label="Kelompok pengaturan" style="margin-top:12px">
+        <button type="button" class="tab" role="tab" id="tab-energi" aria-controls="p-energi" aria-selected="true" data-tab="energi">Energi<span class="tc" data-tc="energi">0 poin</span></button>
+        <button type="button" class="tab" role="tab" id="tab-air" aria-controls="p-air" aria-selected="false" data-tab="air">Pendingin dan air<span class="tc" data-tc="air">0 poin</span></button>
+        <button type="button" class="tab" role="tab" id="tab-sekitar" aria-controls="p-sekitar" aria-selected="false" data-tab="sekitar">Sekitar<span class="tc" data-tc="sekitar">0 poin</span></button>
+      </div>
+
+      <div id="p-energi" role="tabpanel" aria-labelledby="tab-energi">
+        <div class="ctl">
+          <div class="ctl-h"><label class="lbl" for="in-solar">Panel surya</label><span class="val" data-val="solar">0%</span></div>
+          <input type="range" id="in-solar" data-k="solar" min="0" max="100" step="5" value="0">
+          <p class="hint">Porsi listrik yang dipasang dari matahari. Panel hanya bekerja siang hari. <span class="cost" data-cost="solar">+0</span></p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><label class="lbl" for="in-wind">PLTA/Angin</label><span class="val" data-val="wind">0%</span></div>
+          <input type="range" id="in-wind" data-k="wind" min="0" max="100" step="5" value="0">
+          <p class="hint">Surya ditambah angin maksimal 100%. Sisanya diambil dari PLN yang masih banyak memakai batu bara. <span class="cost" data-cost="wind">+0</span></p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><span class="lbl" id="l-batt">Baterai penyimpan</span></div>
+          <div class="seg" role="radiogroup" aria-labelledby="l-batt" data-k="battery" data-num="1">
+            <button type="button" role="radio" aria-checked="true" data-v="0">Tanpa<small>+0</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="1">Sedang<small>+12</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="2">Besar<small>+24</small></button>
+          </div>
+          <p class="hint">Menyimpan listrik surya dan angin untuk dipakai malam hari atau saat angin diam.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><span class="lbl" id="l-eff">Efisiensi server dan gedung</span></div>
+          <div class="seg" role="radiogroup" aria-labelledby="l-eff" data-k="eff" data-num="1">
+            <button type="button" role="radio" aria-checked="true" data-v="0">Standar<small>+0</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="1">Hemat<small>+6</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="2">Sangat hemat<small>+12</small></button>
+          </div>
+          <p class="hint">Lorong udara panas dan dingin dipisah, server hemat daya. Listrik untuk pendingin dan lampu ikut turun.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><span class="lbl" id="l-bu">Listrik cadangan</span></div>
+          <div class="seg" role="radiogroup" aria-labelledby="l-bu" data-k="backup">
+            <button type="button" role="radio" aria-checked="true" data-v="diesel">Genset diesel<small>+4</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="baterai">Baterai cadangan<small>+14</small></button>
+          </div>
+          <p class="hint">Genset diesel murah, tetapi berisik dan mengeluarkan asap saat diuji.</p>
+        </div>
+        <div class="ctl">
+          <button type="button" class="sw" role="switch" aria-checked="false" data-k="recov"><span><span class="lbl">Alat daur ulang energi</span><br><span class="hint">Menangkap panas buangan server dan mengubahnya menjadi listrik yang dipakai lagi di gedung. PUE turun, kipas tidak perlu membuang udara panas sebanyak dulu, jadi warga lebih sedikit terkena udara hangat dan bunyi. <span class="cost">+12</span></span></span><span class="track"></span></button>
+        </div>
+      </div>
+
+      <div id="p-air" role="tabpanel" aria-labelledby="tab-air" hidden>
+        <div class="ctl">
+          <div class="ctl-h"><span class="lbl" id="l-cool">Sistem pendingin</span></div>
+          <div class="opts" role="radiogroup" aria-labelledby="l-cool" data-k="cooling">
+            <button type="button" class="opt" role="radio" aria-checked="true" data-v="tower"><b>Menara pendingin</b><span class="cost">+8</span><span class="d">Air menguap untuk membuang panas. Irit listrik, tetapi boros air.</span></button>
+            <button type="button" class="opt" role="radio" aria-checked="false" data-v="chiller"><b>AC udara (chiller)</b><span class="cost">+14</span><span class="d">Kipas dan kompresor. Hemat air, tetapi boros listrik dan paling bising.</span></button>
+            <button type="button" class="opt" role="radio" aria-checked="false" data-v="hybrid"><b>Hibrida udara dan air</b><span class="cost">+22</span><span class="d">Gabungan keduanya. Pemakaian air dan listrik sama-sama sedang.</span></button>
+            <button type="button" class="opt" role="radio" aria-checked="false" data-v="liquid"><b>Pendingin cair tertutup</b><span class="cost">+40</span><span class="d">Cairan mengalir tertutup ke chip server. Paling irit listrik, air, dan suara.</span></button>
+          </div>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><span class="lbl" id="l-src">Sumber air</span></div>
+          <div class="opts" role="radiogroup" aria-labelledby="l-src" data-k="source">
+            <button type="button" class="opt" role="radio" aria-checked="true" data-v="tanah"><b>Air tanah (sumur bor)</b><span class="cost">+0</span><span class="d">Mengambil dari tanah yang juga dipakai sumur warga.</span></button>
+            <button type="button" class="opt" role="radio" aria-checked="false" data-v="pdam"><b>Air PDAM</b><span class="cost">+2</span><span class="d">Berbagi pasokan dengan keran rumah warga.</span></button>
+            <button type="button" class="opt" role="radio" aria-checked="false" data-v="alt"><b>Air hujan dan air limbah olahan</b><span class="cost">+16</span><span class="d">Ditampung di tandon. Jumlahnya terbatas.</span></button>
+          </div>
+        </div>
+        <div class="ctl">
+          <div class="ctl-h"><label class="lbl" for="in-recycle">Daur ulang air pendingin</label><span class="val" data-val="recycle">0%</span></div>
+          <input type="range" id="in-recycle" data-k="recycle" min="0" max="90" step="10" value="0">
+          <p class="hint">Air dipakai berulang sebelum dibuang, jadi yang diambil dari sumber makin sedikit. <span class="cost" data-cost="recycle">+0</span></p>
+        </div>
+        <div class="ctl">
+          <button type="button" class="sw" role="switch" aria-checked="false" data-k="ipal"><span><span class="lbl">IPAL (pengolah air limbah)</span><br><span class="hint">Membersihkan air buangan sebelum masuk saluran dan sungai. <span class="cost">+8</span></span></span><span class="track"></span></button>
+        </div>
+      </div>
+
+      <div id="p-sekitar" role="tabpanel" aria-labelledby="tab-sekitar" hidden>
+        <div class="ctl">
+          <div class="ctl-h"><label class="lbl" for="in-belt">Sabuk hijau (pohon)</label><span class="val" data-val="belt">0%</span></div>
+          <input type="range" id="in-belt" data-k="belt" min="0" max="100" step="10" value="0">
+          <p class="hint">Barisan pohon antara data center dan rumah warga meredam suara dan debu. <span class="cost" data-cost="belt">+0</span></p>
+        </div>
+        <div class="ctl">
+          <button type="button" class="sw" role="switch" aria-checked="false" data-k="wall"><span><span class="lbl">Dinding peredam suara</span><br><span class="hint">Menahan bunyi kipas dan mesin supaya tidak sampai ke rumah warga. <span class="cost">+6</span></span></span><span class="track"></span></button>
+        </div>
+        <div class="ctl">
+          <button type="button" class="sw" role="switch" aria-checked="false" data-k="reuse"><span><span class="lbl">Panas buangan dimanfaatkan</span><br><span class="hint">Panas server dialirkan ke rumah kaca atau pemanas air, tidak dilepas ke udara. <span class="cost">+10</span></span></span><span class="track"></span></button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<div class="nav"><button type="button" class="btn primary" data-go="kuis">Lanjut ke Kuis Pemahaman</button></div>
+</div>
+
+<div id="m-kuis" class="panel" role="tabpanel" hidden><section class="card" aria-labelledby="h-quiz">
+    <h2 id="h-quiz">Uji pemahaman</h2>
+    <div id="quiz"></div>
+    <p class="qscore" id="qscore"></p>
+  </section></div>
+<p class="foot">Angka dalam simulasi ini disederhanakan untuk belajar dan bukan data resmi sebuah data center. Skala yang dipakai: beban server 10 MW, kampung berpenduduk 5.000 orang yang memakai 120 liter air per orang per hari.</p>
+</div>
+<script>
+/*MODEL-START*/
+const BUDGET=150, IT_KW=10000, WARGA=5000, WARGA_L=120, HOUSE_KWH=5;
+const COOL={
+  tower:{pue:1.45,wue:1.8,db:64,cost:8},
+  chiller:{pue:1.70,wue:0.2,db:68,cost:14},
+  hybrid:{pue:1.40,wue:0.7,db:62,cost:22},
+  liquid:{pue:1.15,wue:0.1,db:53,cost:40}
+};
+const EFF=[{add:.20,cost:0},{add:.08,cost:6},{add:0,cost:12}];
+const BATT=[{v:0,cost:0},{v:.5,cost:12},{v:1,cost:24}];
+const SRC={tanah:{cost:0},pdam:{cost:2},alt:{cost:16}};
+const BACKUP={diesel:{cost:4,db:4,air:34},baterai:{cost:14,db:0,air:0}};
+const PRESETS={
+  awal:{recov:false,solar:0,wind:0,battery:0,eff:0,backup:'diesel',cooling:'tower',source:'tanah',recycle:0,ipal:false,belt:0,wall:false,reuse:false},
+  seimbang:{recov:false,solar:60,wind:25,battery:1,eff:1,backup:'baterai',cooling:'hybrid',source:'alt',recycle:60,ipal:true,belt:50,wall:true,reuse:false},
+  maksimal:{recov:true,solar:70,wind:30,battery:2,eff:2,backup:'baterai',cooling:'liquid',source:'alt',recycle:90,ipal:true,belt:100,wall:true,reuse:true}
+};
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const stOf=v=>v>=70?'good':v>=40?'warn':'bad';
+const fmt=(x,d=0)=>x.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+function costParts(s){
+  return {
+    solar:s.solar*.4, wind:s.wind*.45, battery:BATT[s.battery].cost, eff:EFF[s.eff].cost, backup:BACKUP[s.backup].cost,
+    cooling:COOL[s.cooling].cost, source:SRC[s.source].cost, recycle:s.recycle/100*14, ipal:s.ipal?8:0,
+    belt:s.belt/100*12, wall:s.wall?6:0, reuse:s.reuse?10:0, recov:s.recov?12:0
+  };
+}
+
+function compute(s){
+  const c=COOL[s.cooling], b=BATT[s.battery].v;
+  // listrik dan karbon
+  const pue=Math.max(1.05,c.pue+EFF[s.eff].add-(s.recov?.10:0));
+  const kwDay=IT_KW*pue*24;
+  const solarEff=s.solar*(.45+.5*b), windEff=s.wind*(.70+.25*b);
+  const renew=solarEff+windEff, grid=100-renew;
+  const co2=kwDay*(grid*.85+solarEff*.05+windEff*.02)/100/1000;
+  const carbon=clamp(100*(1-(co2-30)/220),0,100);
+  // air
+  const dry=s.season==='kemarau';
+  const gross=IT_KW*24*c.wue/1000, net=gross*(1-s.recycle/100);
+  const headroom=(dry?675:900)-WARGA*WARGA_L/1000, altCap=dry?80:250;
+  const fromAlt=s.source==='alt'?Math.min(net,altCap):0, shared=net-fromAlt, rr=shared/headroom;
+  const discharge=net*.4*(s.ipal?.12:1);
+  const qty=rr<=.5?100-rr*40:rr<=1?80-(rr-.5)*120:Math.max(0,20-(rr-1)*40);
+  const qual=100*(1-clamp(discharge/150,0,1));
+  const water=.6*qty+.4*qual;
+  // suara dan udara
+  const db=c.db+BACKUP[s.backup].db-(s.wall?9:0)-s.belt/100*5-(s.recov?2:0);
+  const noise=clamp(100-(db-45)*3,0,100);
+  const air=clamp(100-BACKUP[s.backup].air+s.belt*.1,0,100);
+  const noiseAir=.7*noise+.3*air;
+  // warga
+  const warga=clamp(.35*noise+.35*qty+.30*air+(s.reuse?8:0)+(s.recov?5:0)+s.belt*.04,0,100);
+  const aq=clamp(1-.75*Math.min(rr,1.3),.12,1);
+  const tank=s.source==='alt'?clamp(altCap/Math.max(net,1),.08,1):0;
+  // biaya dan skor
+  const cp=costParts(s);
+  const cost=Object.values(cp).reduce((a,x)=>a+x,0);
+  const tab={energi:cp.solar+cp.wind+cp.battery+cp.eff+cp.backup+cp.recov, air:cp.cooling+cp.source+cp.recycle+cp.ipal, sekitar:cp.belt+cp.wall+cp.reuse};
+  const overall=.30*carbon+.30*water+.20*noiseAir+.20*warga;
+  const over=Math.max(0,Math.ceil(cost-BUDGET-1e-9));
+  const st={carbon:stOf(carbon),water:stOf(water),noise:stOf(noiseAir),warga:stOf(warga)};
+  const greens=Object.values(st).filter(x=>x==='good').length;
+  let grade;
+  if(over>0) grade=['Melebihi batas kredit','Kurangi '+over+' poin agar bisa dibangun'];
+  else if(overall>=75&&greens===4) grade=['Data center hijau','Ramah bagi warga dan lingkungan'];
+  else if(overall>=55) grade=['Hampir hijau','Masih ada yang perlu diperbaiki'];
+  else if(overall>=35) grade=['Perlu perbaikan','Warga sekitar mulai terganggu'];
+  else grade=['Mencemari lingkungan','Warga sekitar dirugikan'];
+  return {pue,kwDay,solarEff,windEff,renew,grid,co2,carbon,gross,net,headroom,altCap,fromAlt,shared,rr,discharge,qty,qual,water,db,noise,air,noiseAir,warga,aq,tank,cp,cost,tab,overall,over,st,greens,grade,dry,
+    scores:{carbon,water,noise:noiseAir,warga},missionDone:over===0&&greens===4};
+}
+/*MODEL-END*/
+const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
+const state=Object.assign({season:'normal'},PRESETS.awal);
+let R=compute(state);
+const PILL={good:'Aman',warn:'Waspada',bad:'Bahaya'};
+const COOL_NAME={tower:'menara pendingin',chiller:'AC udara (chiller)',hybrid:'hibrida udara dan air',liquid:'pendingin cair tertutup'};
+const SRC_NAME={tanah:'air tanah',pdam:'air PDAM',alt:'air hujan dan air limbah olahan'};
+const BATT_NAME=['tanpa baterai','baterai sedang','baterai besar'];
+const EFF_NAME=['standar','hemat','sangat hemat'];
+const show=(id,on)=>{const e=document.getElementById(id); if(e) e.toggleAttribute('hidden',!on);};
+const word=(v,a,b,c)=>v>=70?a:v>=40?b:c;
+
+function makeNotes(s,r){
+  const L=[], add=(t,text)=>L.push({t,text});
+  if(r.over>0) add('bad',`Kredit terpakai ${fmt(r.cost)} dari ${BUDGET} poin. Kurangi ${fmt(r.over)} poin supaya desain bisa dibangun.`);
+  else add('info',`Kredit terpakai ${fmt(r.cost,r.cost%1?1:0)} dari ${BUDGET} poin. Sisanya ${fmt(BUDGET-r.cost,(BUDGET-r.cost)%1?1:0)} poin.`);
+  if(s.solar>0&&s.battery===0) add('warn',`Panel surya mati saat malam. Tanpa baterai, hanya ${fmt(r.solarEff)}% dari ${s.solar}% porsi surya yang benar-benar terpakai. Sisanya tetap diambil dari PLN.`);
+  if(r.grid>60) add('bad',`${fmt(r.grid)}% listrik masih dari PLN yang banyak memakai batu bara. Emisinya ${fmt(r.co2)} ton CO₂ per hari.`);
+  else if(r.grid>35) add('warn',`Listrik dari PLN tinggal ${fmt(r.grid)}%. Emisi turun menjadi ${fmt(r.co2)} ton CO₂ per hari.`);
+  else add('good',`Listrik dari PLN hanya ${fmt(r.grid)}%. Emisinya ${fmt(r.co2)} ton CO₂ per hari.`);
+  if(r.pue>=1.6) add('warn',`PUE ${fmt(r.pue,2)}. Tiap 1 kWh untuk server menghabiskan ${fmt(r.pue-1,2)} kWh lagi untuk pendingin dan lainnya.`);
+  else if(r.pue<=1.25) add('good',`PUE ${fmt(r.pue,2)}. Hampir semua listrik dipakai server dan tidak terbuang.`);
+  if(r.rr>1){
+    const tail=s.source==='pdam'?'Tekanan air keran warga mengecil.':'Muka air tanah turun dan sumur warga bisa kering.';
+    if(s.source==='alt') add('bad',`Tandon air hujan hanya menyuplai ${fmt(r.altCap)} m³ per hari. Kekurangannya ${fmt(r.shared)} m³ diambil dari sumber warga yang sisa amannya ${fmt(r.headroom)} m³. ${tail}`);
+    else add('bad',`Data center mengambil ${fmt(r.shared)} m³ air per hari dari sumber bersama, padahal sisa air aman hanya ${fmt(r.headroom)} m³. ${tail}`);
+  } else if(r.rr>.5) add('warn',`Pengambilan ${fmt(r.shared)} m³ per hari sudah memakai ${fmt(r.rr*100)}% sisa air aman. Angka ini perlu dijaga tetap kecil.`);
+  else add('good',`Air yang diambil dari sumber warga hanya ${fmt(r.shared)} m³ per hari. Sumur dan keran warga aman.`);
+  if(!s.ipal&&r.discharge>25) add(r.discharge>=60?'bad':'warn',`Air buangan ${fmt(r.discharge)} m³ per hari membawa mineral dan bahan kimia pendingin. Tanpa IPAL, saluran dan sungai bisa tercemar.`);
+  else if(s.ipal&&r.gross>20) add('good','IPAL membersihkan air buangan sebelum masuk ke saluran dan sungai.');
+  if(s.recycle===0&&r.gross>100) add('info','Tip: daur ulang air pendingin mengurangi pengambilan air dan air buangan.');
+  if(r.db>55) add(r.db>65?'bad':'warn',`Suara ${fmt(r.db,1)} dB di rumah warga, melewati batas 55 dB. Coba dinding peredam, sabuk hijau, atau pendingin yang lebih senyap.`);
+  else add('good',`Suara ${fmt(r.db,1)} dB di rumah warga, masih di bawah batas 55 dB.`);
+  if(s.backup==='diesel') add('warn','Genset diesel mengeluarkan asap dan suara saat diuji tiap bulan. Baterai cadangan lebih bersih.');
+  if(s.recov) add('good','Alat daur ulang energi mengubah panas buangan menjadi listrik yang dipakai lagi. PUE turun, dan udara hangat serta bunyi kipas yang sampai ke rumah warga berkurang.');
+  if(s.reuse) add('good','Panas server dimanfaatkan, jadi tidak semuanya dilepas ke udara sekitar.');
+  const rank={bad:0,warn:1,info:2,good:3};
+  return L.sort((a,b)=>rank[a.t]-rank[b.t]).slice(0,8);
+}
+
+function renderBar(){
+  $('#scoreN').textContent=Math.round(R.overall);
+  $('#gradeT').textContent=R.grade[0];
+  $('#gradeS').textContent=R.grade[1];
+  $('#budT').textContent=fmt(R.cost)+'/'+BUDGET;
+  $('#bar').dataset.over=String(R.over>0);
+  $('#budBar').style.setProperty('--w',Math.min(100,R.cost/BUDGET*100)+'%');
+  const v={carbon:fmt(R.co2)+' t',water:fmt(R.net)+' m³',noise:fmt(R.db)+' dB',warga:Math.round(R.warga)+''};
+  $$('#dots li').forEach(li=>{li.dataset.st=R.st[li.dataset.c]; $('b',li).textContent=v[li.dataset.c];});
+}
+
+function renderCards(){
+  const big={carbon:fmt(R.co2),water:fmt(R.net),noise:fmt(R.db,1),warga:Math.round(R.warga)+''};
+  const sub={
+    carbon:`PUE ${fmt(R.pue,2)}. Energi terbarukan terpakai ${fmt(R.renew)}%. Setara listrik harian ${fmt(Math.round(R.kwDay/HOUSE_KWH/1000))} ribu rumah.`,
+    water:`Dari sumber warga: ${fmt(R.shared)} m³, sisa aman ${fmt(R.headroom)} m³. Setara kebutuhan harian ${fmt(Math.round(R.net*1000/WARGA_L))} warga.`,
+    noise:`Batas permukiman 55 dB. Kualitas udara sekitar: ${word(R.air,'baik','sedang','buruk')}.`,
+    warga:`Sumur dan keran warga: ${R.aq>=.6?'aman':R.aq>=.3?'menurun':'hampir kering'}. Air buangan: ${word(R.qual,'bersih','keruh','tercemar')}.`
+  };
+  $$('#cards .ind').forEach(card=>{
+    const c=card.dataset.c;
+    card.dataset.st=R.st[c];
+    $('.pill',card).textContent=PILL[R.st[c]];
+    $('.big b',card).textContent=big[c];
+    $('.meter i',card).style.setProperty('--w',R.scores[c]+'%');
+    $('.sub',card).textContent=sub[c];
+  });
+  const m=$('#mission');
+  m.dataset.done=String(R.missionDone);
+  m.textContent=R.missionDone?'Misi selesai. Semua indikator hijau dalam kredit.':`Misi: buatlah semua indikator hijau dalam kredit yang ada. Sekarang ${R.greens} dari 4 hijau.`;
+}
+
+function renderNotes(){
+  const ul=$('#notes'); ul.textContent='';
+  makeNotes(state,R).forEach(n=>{const li=document.createElement('li'); li.dataset.t=n.t; li.textContent=n.text; ul.appendChild(li);});
+}
+
+function renderScene(){
+  const sc=$('#scene'), s=state, r=R;
+  sc.dataset.season=s.season;
+  $$('#solar .pnl').forEach(g=>g.toggleAttribute('hidden',+g.dataset.i>=Math.round(s.solar/10)));
+  for(let i=0;i<4;i++) show('wt'+i,i<Math.round(s.wind/25));
+  show('b0',s.battery>=1); show('b1',s.battery>=2);
+  show('gen',s.backup==='diesel'); show('bu',s.backup==='baterai');
+  $('#plnSmoke').style.opacity=.2+.8*r.grid/100;
+  ['tower','chiller','hybrid','liquid'].forEach(k=>show('cool-'+k,s.cooling===k));
+  $('#vapH').style.opacity=.7;
+  show('wall',s.wall); show('gh',s.reuse); show('recov',s.recov);
+  show('recovHint',s.recov&&$('#recovInfo').hidden);
+  if(!s.recov){$('#recovInfo').hidden=true; $('#recov').setAttribute('aria-expanded','false');}
+  $('#rcPue').textContent=fmt(r.pue,2);
+  show('ipalHint',s.ipal&&$('#ipalInfo').hidden);
+  if(!s.ipal){$('#ipalInfo').hidden=true; $('#ipal').setAttribute('aria-expanded','false');}
+  $('#ipVol').textContent=fmt(r.discharge);
+  $$('#trees>g').forEach((g,i)=>g.toggleAttribute('hidden',i>=Math.round(s.belt/100*6)));
+  const lvl=clamp((r.db-45)/25,0,1), rg=$('#rings');
+  rg.dataset.st=r.db<=55?'good':r.db<=65?'warn':'bad';
+  $$('circle',rg).forEach((c,i)=>c.style.opacity=clamp(lvl*1.2-i*.2+.1,0,1));
+  show('tank',s.source==='alt');
+  const h=34*r.tank; $('#tankFill').setAttribute('height',h); $('#tankFill').setAttribute('y',289-h);
+  show('gw',s.source==='tanah'||(s.source==='alt'&&r.shared>0));
+  show('pdam',s.source==='pdam');
+  show('ipal',s.ipal);
+  $('#pond').dataset.st=stOf(r.qual);
+  show('loop',s.recycle>0); $('#loop').style.opacity=.3+.7*s.recycle/90;
+  const y=360-60*r.aq; $('#aq').setAttribute('y',y); $('#aq').setAttribute('height',380-y);
+  $$('#wells path').forEach(p=>p.classList.toggle('dry',y>346));
+}
+
+function renderControls(){
+  $$('[role=radio]').forEach(b=>{
+    const g=b.closest('[data-k]'); if(!g||b.closest('#quiz')) return;
+    const k=g.dataset.k, v=g.dataset.num?+b.dataset.v:b.dataset.v;
+    b.setAttribute('aria-checked',String(state[k]===v));
+  });
+  $$('.sw').forEach(b=>b.setAttribute('aria-checked',String(!!state[b.dataset.k])));
+  $$('input[type=range]').forEach(i=>{
+    const k=i.dataset.k; i.value=state[k];
+    i.style.setProperty('--p',(i.value-i.min)/(i.max-i.min)*100+'%');
+    const lab=$('[data-val='+k+']'); if(lab) lab.textContent=state[k]+'%';
+  });
+  $$('[data-cost]').forEach(e=>{const x=R.cp[e.dataset.cost]; e.textContent='+'+fmt(x,x%1?1:0);});
+  $$('[data-tc]').forEach(e=>{const x=R.tab[e.dataset.tc]; e.textContent=fmt(x,x%1?1:0)+' poin';});
+}
+
+function update(){
+  R=compute(state);
+  renderBar(); renderCards(); renderNotes(); renderScene(); renderControls();
+}
+
+document.addEventListener('input',e=>{
+  const i=e.target;
+  if(!i.matches('input[type=range]')) return;
+  const k=i.dataset.k; let v=+i.value;
+  if(k==='solar') v=Math.min(v,100-state.wind);
+  if(k==='wind') v=Math.min(v,100-state.solar);
+  state[k]=v; update();
+});
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button'); if(!t) return;
+  if(t.matches('[role=radio]')&&!t.closest('#quiz')){
+    const g=t.closest('[data-k]'), k=g.dataset.k;
+    state[k]=g.dataset.num?+t.dataset.v:t.dataset.v; update(); return;
+  }
+  if(t.classList.contains('sw')){state[t.dataset.k]=!state[t.dataset.k]; update(); return;}
+  if(t.classList.contains('tab')){
+    $$('.tab').forEach(x=>x.setAttribute('aria-selected',String(x===t)));
+    ['energi','air','sekitar'].forEach(id=>{document.getElementById('p-'+id).hidden=(id!==t.dataset.tab);});
+  }
+});
+
+function summaryText(){
+  const s=state, r=R, yn=v=>v?'ya':'tidak';
+  return [
+    'Desain Data Center Hijau',
+    `Skor ${Math.round(r.overall)}/100 (${r.grade[0]}). Kredit ${fmt(r.cost,r.cost%1?1:0)} dari ${BUDGET} poin.`,
+    `Energi: surya ${s.solar}%, angin ${s.wind}%, ${BATT_NAME[s.battery]}, efisiensi ${EFF_NAME[s.eff]}, cadangan ${s.backup==='diesel'?'genset diesel':'baterai'}, alat daur ulang energi ${yn(s.recov)}.`,
+    `Pendingin dan air: ${COOL_NAME[s.cooling]}, sumber ${SRC_NAME[s.source]}, daur ulang ${s.recycle}%, IPAL ${yn(s.ipal)}.`,
+    `Sekitar: sabuk hijau ${s.belt}%, dinding peredam ${yn(s.wall)}, panas buangan dimanfaatkan ${yn(s.reuse)}.`,
+    `Hasil: ${fmt(r.co2)} ton CO₂ per hari, ${fmt(r.net)} m³ air per hari, suara ${fmt(r.db,1)} dB, kenyamanan warga ${Math.round(r.warga)}/100.`
+  ].join('\n');
+}
+$('#copyBtn').addEventListener('click',()=>{
+  const text=summaryText(), msg=$('#copyMsg'), area=$('#copyArea');
+  const manual=()=>{area.hidden=false; area.value=text; area.focus(); area.select(); msg.textContent='Teks sudah dipilih. Salin dengan menekan lama.';};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>{msg.textContent='Ringkasan tersalin.'; area.hidden=true;}).catch(manual);
+  } else manual();
+});
+
+const QUIZ=[
+  {q:'Kenapa panel surya saja tidak cukup untuk data center yang menyala 24 jam?',o:['Panel surya hanya bekerja saat ada sinar matahari, jadi malam hari perlu baterai atau sumber lain','Panel surya menghasilkan CO₂ lebih banyak daripada batu bara','Panel surya membutuhkan air pendingin dalam jumlah besar'],a:0,why:'Panel surya mengubah cahaya matahari menjadi listrik, jadi malam hari ia tidak menghasilkan listrik.'},
+  {q:'PUE sebuah data center adalah 1,15. Artinya apa?',o:['Data center memakai air 1,15 liter per hari','Hampir semua listrik dipakai server, hanya sedikit untuk pendingin dan lampu','Sebanyak 115% listrik berasal dari energi terbarukan'],a:1,why:'PUE adalah total listrik dibagi listrik server. Dengan 1,15, tiap 1 kWh untuk server hanya butuh 0,15 kWh tambahan.'},
+  {q:'Mengapa mengambil air tanah terlalu banyak merugikan warga?',o:['Air tanah berubah menjadi lebih panas dan tidak bisa diminum lagi','Hujan tidak akan turun lagi di daerah itu','Muka air tanah turun sehingga sumur warga bisa kering'],a:2,why:'Air tanah terisi kembali dengan lambat lewat resapan hujan. Jika diambil lebih cepat, muka air turun.'},
+  {q:'Berapa batas tingkat kebisingan kawasan permukiman yang dipakai dalam simulasi ini?',o:['35 dB','55 dB','85 dB'],a:1,why:'KepMenLH No. 48 Tahun 1996 menetapkan 55 dB(A) untuk perumahan dan permukiman.'},
+  {q:'Sistem pendingin mana yang paling irit listrik, air, dan suara dalam simulasi ini?',o:['Menara pendingin','AC udara (chiller)','Pendingin cair tertutup'],a:2,why:'Cairan mengalir tertutup langsung ke chip server, jadi PUE dan pemakaian airnya paling kecil dan suaranya paling pelan.'},
+  {q:'Apa fungsi IPAL pada sebuah data center?',o:['Membersihkan air buangan sebelum masuk ke saluran dan sungai','Mendinginkan server dengan kipas besar','Menyimpan listrik dari panel surya'],a:0,why:'IPAL adalah instalasi pengolahan air limbah. Air dibersihkan dulu agar sungai dan kolam di sekitar tidak tercemar.'},
+  {q:'Mengapa genset diesel kurang ramah bagi warga sekitar?',o:['Genset diesel tidak bisa menghasilkan listrik','Genset diesel berisik dan mengeluarkan asap saat diuji','Genset diesel memakai air tanah milik warga'],a:1,why:'Genset diesel menimbulkan suara keras dan asap. Baterai cadangan lebih bersih dan lebih senyap.'},
+  {q:'Apa gunanya sabuk hijau berupa barisan pohon antara data center dan rumah warga?',o:['Menambah panas di sekitar rumah warga','Menggantikan fungsi IPAL','Membantu meredam suara dan debu'],a:2,why:'Barisan pohon bekerja seperti penyaring alami yang meredam suara dan menahan debu.'},
+  {q:'Panas dari server dialirkan ke rumah kaca. Apa manfaatnya?',o:['Panas tidak semuanya terbuang ke udara dan bisa dipakai lagi','Server tidak perlu listrik sama sekali','Air tanah warga menjadi bertambah'],a:0,why:'Panas buangan yang dimanfaatkan membuat energi tidak terbuang percuma dan udara sekitar tidak ikut makin hangat.'},
+  {q:'Langkah mana yang paling tepat untuk mengurangi emisi CO₂ dari listrik data center?',o:['Memakai lebih banyak listrik PLN dari batu bara','Menambah porsi panel surya dan angin, dibantu baterai','Mematikan IPAL supaya hemat listrik'],a:1,why:'Surya dan angin hanya melepas sedikit CO₂, dan baterai membantu agar listriknya tetap tersedia saat malam atau saat angin diam.'}
+];
+const QSEC=10; let qi=0,correct=0,tmr=null,deadline=0;
+const quizEl=$('#quiz');
+function mk(tag,cls,txt){const e=document.createElement(tag); if(cls) e.className=cls; if(txt) e.textContent=txt; if(tag==='button') e.type='button'; return e;}
+function stopT(){clearInterval(tmr); tmr=null;}
+function resetQuiz(){
+  stopT(); qi=0; correct=0; quizEl.textContent=''; $('#qscore').textContent='';
+  const w=mk('div','q');
+  const b=mk('button','btn primary','Mulai kuis'); b.onclick=showQ;
+  w.append(mk('p','',`Kuis ini terdiri dari ${QUIZ.length} pertanyaan. Setiap pertanyaan punya waktu ${QSEC} detik. Jika waktu habis, jawabannya dianggap salah dan jawaban yang benar akan ditampilkan. Skor kamu muncul di akhir kuis.`),b);
+  quizEl.appendChild(w);
+}
+function showQ(){
+  stopT(); quizEl.textContent='';
+  const it=QUIZ[qi], q=mk('div','q'), top=mk('div','qtop');
+  const time=mk('span','qtime',QSEC+' detik'); top.append(mk('span','',`Pertanyaan ${qi+1} dari ${QUIZ.length}`),time);
+  const meter=mk('div','meter'), bar=document.createElement('i'); meter.appendChild(bar);
+  const box=mk('div','opts'), info=mk('p','qt'), why=mk('p','why',it.why);
+  info.hidden=true; why.hidden=true;
+  const next=mk('button','btn primary',qi<QUIZ.length-1?'Pertanyaan berikutnya':'Lihat skor'); next.hidden=true;
+  next.onclick=()=>{qi++; qi<QUIZ.length?showQ():showEnd();};
+  function finish(sel){
+    const all=$$('.opt',box); if(all[0].disabled) return;
+    stopT(); all.forEach((x,i)=>{x.disabled=true; if(i===it.a) x.dataset.r='ok';});
+    if(sel===it.a) correct++; else if(sel>=0) all[sel].dataset.r='no';
+    info.textContent=sel===it.a?'Benar!':sel>=0?'Belum tepat.':'Waktu habis.';
+    info.hidden=false; why.hidden=false; next.hidden=false; next.focus();
+    $('#qscore').textContent=`${correct} dari ${qi+1} jawaban benar`;
+  }
+  it.o.forEach((txt,oi)=>{const b=mk('button','opt',txt); b.onclick=()=>finish(oi); box.appendChild(b);});
+  q.append(top,meter,mk('p','qt',(qi+1)+'. '+it.q),box,info,why,next); quizEl.appendChild(q);
+  deadline=Date.now()+QSEC*1000;
+  const tick=()=>{
+    const left=Math.max(0,(deadline-Date.now())/1000);
+    time.textContent=Math.ceil(left)+' detik'; time.dataset.low=String(left<=10);
+    bar.style.setProperty('--w',(left/QSEC*100)+'%'); bar.style.setProperty('--tone',left<=10?'var(--bad)':'var(--accent)');
+    if(left<=0) finish(-1);
+  };
+  tick(); tmr=setInterval(tick,200);
+}
+function showEnd(){
+  stopT(); quizEl.textContent=''; $('#qscore').textContent='';
+  const msg=correct>=8?'Hebat, pemahamanmu sudah sangat baik.':correct>=6?'Bagus, tinggal sedikit lagi. Baca ulang materi dan coba simulasinya sekali lagi.':'Ayo belajar lagi. Baca ulang materi, coba simulasinya, lalu ulangi kuis.';
+  const w=mk('div','q'), b=mk('button','btn primary','Ulangi kuis'); b.onclick=resetQuiz;
+  w.append(mk('p','fin',`Nilai Akhir: ${correct*10}/100`),mk('p','',`Jawaban Benar ${correct} dari ${QUIZ.length} soal. ${msg}`),b);
+  quizEl.appendChild(w);
+}
+function goM(id){
+  $$('.mtab').forEach(x=>x.setAttribute('aria-selected',String(x.dataset.go===id)));
+  ['materi','sim','kuis'].forEach(x=>{document.getElementById('m-'+x).hidden=(x!==id);});
+  setMenu(false); $('#curtab').textContent=$('.mtab[data-go='+id+']').firstChild.textContent;
+  if(id!=='kuis') resetQuiz();
+  window.scrollTo({top:0});
+}
+function setMenu(on){document.getElementById('mmenu').hidden=!on; const h=$('#hamb'); h.setAttribute('aria-expanded',String(on)); h.setAttribute('aria-label',on?'Tutup menu':'Buka menu');}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#hamb')){setMenu($('#hamb').getAttribute('aria-expanded')!=='true'); return;}
+  const g=e.target.closest('[data-go]');
+  if(g) goM(g.dataset.go); else if(!e.target.closest('#mmenu')) setMenu(false);
+});
+resetQuiz();
+
+(function(){
+  const root=document.documentElement, btn=document.getElementById('themeBtn');
+  const mq=matchMedia('(prefers-color-scheme: dark)');
+  const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':mq.matches;
+  function sync(){
+    const d=isDark();
+    btn.dataset.mode=d?'dark':'light';
+    btn.setAttribute('aria-label',d?'Ganti ke tema terang':'Ganti ke tema gelap');
+    btn.title=d?'Ganti ke tema terang':'Ganti ke tema gelap';
+  }
+  try{const sv=localStorage.getItem('dch-theme'); if(sv==='dark'||sv==='light') root.dataset.theme=sv;}catch(_){}
+  btn.addEventListener('click',()=>{
+    const next=isDark()?'light':'dark';
+    root.dataset.theme=next;
+    try{localStorage.setItem('dch-theme',next);}catch(_){}
+    sync();
+  });
+  if(mq.addEventListener) mq.addEventListener('change',sync);
+  new MutationObserver(sync).observe(root,{attributes:true,attributeFilter:['data-theme']});
+  sync();
+})();
+
+function toggleRecov(open){
+  if(!state.recov) return;
+  const box=$('#recovInfo'), on=open===undefined?box.hidden:open;
+  box.hidden=!on; $('#recov').setAttribute('aria-expanded',String(on)); show('recovHint',!on);
+  if(on) box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('#recov').addEventListener('click',()=>toggleRecov());
+$('#recov').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); toggleRecov();}});
+$('#recovClose').addEventListener('click',()=>toggleRecov(false));
+function toggleIpal(open){
+  if(!state.ipal) return;
+  const box=$('#ipalInfo'), on=open===undefined?box.hidden:open;
+  box.hidden=!on; $('#ipal').setAttribute('aria-expanded',String(on)); show('ipalHint',!on);
+  if(on) box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('#ipal').addEventListener('click',()=>toggleIpal());
+$('#ipal').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); toggleIpal();}});
+$('#ipalClose').addEventListener('click',()=>toggleIpal(false));
+
+try{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) $('#scene').pauseAnimations(); }catch(_){}
+update();
+</script>
+
+
+<script>
+(function(){
+  const figs=[...document.querySelectorAll('.pv')], vis=new Set();
+  function setMode(f,m){
+    f.dataset.mode=m;
+    f.querySelectorAll('.pv-seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===m)));
+  }
+  figs.forEach(f=>f.querySelectorAll('.pv-seg button').forEach(b=>b.addEventListener('click',()=>{f.dataset.auto='0'; setMode(f,b.dataset.m);})));
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{e.isIntersecting?vis.add(e.target):vis.delete(e.target);}),{threshold:.6});
+    figs.forEach(f=>io.observe(f));
+  }
+  setInterval(()=>{vis.forEach(f=>{if(f.dataset.auto==='1') setMode(f,f.dataset.mode==='p'?'s':'p');});},5500);
+  const probs=[1,2,3,4,5].map(n=>document.getElementById('prob-'+n));
+  function pick(n,scroll){
+    probs.forEach((p,i)=>{
+      const on=i+1===n; p.hidden=!on;
+      if(on){const f=p.querySelector('.pv'); if(f){f.dataset.auto='1'; setMode(f,'p');}}
+    });
+    document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-selected',String(+c.dataset.jump===n)));
+    document.querySelectorAll('.hb').forEach(b=>b.classList.toggle('on',+b.dataset.jump===n));
+    if(scroll) probs[n-1].scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  document.querySelectorAll('[data-jump]').forEach(el=>{
+    const go=()=>pick(+el.dataset.jump,el.classList.contains('hb'));
+    el.addEventListener('click',go);
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); go();}});
+  });
+  probs.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='probnav';
+    const a=document.createElement('button'); a.type='button'; a.className='btn'; a.textContent=i>0?'Masalah '+i:''; 
+    const b=document.createElement('button'); b.type='button'; b.className='btn primary'; b.textContent=i<4?'Masalah '+(i+2):'';
+    if(i>0){a.textContent='‹ Masalah '+i; a.onclick=()=>pick(i,true);} else a.style.visibility='hidden';
+    if(i<4){b.textContent='Masalah '+(i+2)+' ›'; b.onclick=()=>pick(i+2,true);} else b.style.visibility='hidden';
+    d.append(a,b); p.appendChild(d);
+  });
+  pick(1,false);
+})();
+</script>
+</body></html>
